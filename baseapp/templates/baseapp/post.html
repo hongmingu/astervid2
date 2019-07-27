@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill {{ post.user.userusername.username }}</title>
+    {% include 'others/header_static.html' %}
+
+    <meta name="keywords" content="galabill, celebs, celebrity, rank, top100"/>
+    <meta name="author" content="galabill"/>
+    <meta name="title" content="galabill"/>
+    <meta name="description" content="{{ post.posttext_set.last.text }}"/>
+
+    <meta property="og:url" content="https://www.galabill.com{{ request.get_full_path }}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="galabill"/>
+    <meta property="og:site_name" content="galabill"/>
+    <meta property="og:description" content="{{ post.posttext_set.last.text }}"/>
+
+    <meta property="og:image" content="{{ post.user.userphoto.file_300_url }}"/>
+
+    <meta name="twitter:image" content="{{ post.user.userphoto.file_300_url }}">
+
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@galabill"/>
+    <meta name="twitter:creator" content="@{{ post.user.userusername.username }}">
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+    <script src="{% static 'js/date_differ.min.js' %}"></script>
+
+    <script src="{% static 'js/post_populate.min.js' %}"></script>
+</head>
+<body class="light_background_color height_100">
+{% include 'baseapp/_navbar.html' %}
+<div class="hidden" id="page_kind">user</div>
+
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row">
+                <div class="row div_base" id="post_wrapper_{{ id }}">
+                    <script defer>
+                        post_populate("{{ id }}", "{{ obj_type }}")
+                    </script>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'baseapp/_modal_populate.html' %}
+
+</body>
+</html>

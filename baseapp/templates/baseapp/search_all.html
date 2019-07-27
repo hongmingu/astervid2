@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill: {{ word }}</title>
+    {% include 'others/header_static.html' %}
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+    <script src="{% static 'js/post_populate.min.js' %}"></script>
+
+    <script src="{% static 'js/date_differ.min.js' %}"></script>
+    <script src="{% static 'js/search_all.min.js' %}"></script>
+
+
+</head>
+<body class="light_background_color height_100">
+<!--navbar start-->
+{% include 'baseapp/_navbar.html' %}
+
+    <div class="hidden" id="search_word">{{ word }}</div>
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+<!--page info end -->
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row">
+                <div class="h3">user result</div>
+                <div id="content_user"></div>
+                <div class="hidden more_load" align="center" id="more_user"><a href="/search/user/?q={{ word }}"><div class="clickable search_more">more user</div></a></div>
+                <div class="h3">solo result</div>
+                <div id="content_solo"></div>
+                <div class="hidden more_load" align="center" id="more_solo"><a href="/search/solo/?q={{ word }}"><div class="clickable search_more">more solo</div></a></div>
+                <div class="h3">group result</div>
+                <div id="content_group"></div>
+                <div class="hidden more_load" align="center" id="more_group"><a href="/search/group/?q={{ word }}"><div class="clickable search_more">more group</div></a></div>
+                <div class="h3">post result</div>
+                <div id="content_post"></div>
+                <div class="hidden more_load" align="center" id="more_post"><a href="/search/post/?q={{ word }}"><div class="clickable search_more">more post</div></a></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'baseapp/_modal_populate.html' %}
+</body>
+</html>

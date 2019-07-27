@@ -1,0 +1,20 @@
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-114592573-5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-114592573-5');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+{% include 'others/favicon.html' %}
+{% load static from staticfiles %}
+
+<script src="{% static 'jquery/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'jquery/ajax-csrf.min.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static "bootstrap/css/bootstrap.min.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/_style.min.css" %}">

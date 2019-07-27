@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>galabill charge</title>
+    {% include 'others/header_static.html' %}
+</head>
+<body>
+<div class="pay_charge">
+{% include 'authapp/_logo.html' %}
+
+<h2>{{ charge }} $</h2>
+<br>
+
+{{ form.render }}
+</div>
+</body>
+</html>

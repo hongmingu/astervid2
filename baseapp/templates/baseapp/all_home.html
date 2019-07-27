@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill</title>
+    {% include 'others/header_static.html' %}
+
+    {% include 'others/header_metas.html' %}
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+    <script src="{% static 'js/rank.min.js' %}"></script>
+
+
+</head>
+<body class="light_background_color height_100">
+{% include 'baseapp/_navbar.html' %}
+<div class="hidden" id="page_kind">home</div>
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+<!--page info end -->
+<div class="hidden" id="day">{{ day }}</div>
+<div class="hidden" id="today">{{ today }}</div>
+<div class="hidden" id="tomorrow">{{ tomorrow }}</div>
+<div class="hidden" id="yesterday">{{ yesterday }}</div>
+<div class="hidden" id="rank_kind">all</div>
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row">
+
+                <div class="row div_base">
+                    <div align="center">
+                        <a href="/all/?d={{ yesterday }}"><span class="gen_left">＜</span></a>
+                        <span class="gen_day">{{ day }}</span>
+                        {% if tomorrow == '' %}
+                        <span class="gen_right_space"></span>
+                            <div class="gen_today_wrapper" align="center"></div>
+                        {% else %}
+                        <a href="/all/?d={{ tomorrow }}"><span class="gen_right">＞</span></a>
+                            <div class="gen_today_wrapper" align="center">
+                                <a href="/all/"><span class="gen_today clickable">today</span></a>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                    <div>
+                        {% if day == today %}
+                            <div class="gen_list_name_wrapper clickable"><span class="gen_name">All</span><a href="/"><span class="gen_more">home</span></a></div>
+                            <div id="list"></div>
+
+                        {% else %}
+                            <div class="gen_list_name_wrapper clickable"><span class="gen_name">All</span><a href="/?d={{ day }}"><span class="gen_more">home</span></a></div>
+                            <div id="list"></div>
+
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill {{ obj.get_main_name }}</title>
+    {% include 'others/header_static.html' %}
+    <meta name="keywords" content="galabill, celebs, celebrity, rank, top100, {{ obj.get_main_name }}"/>
+    <meta name="author" content="galabill"/>
+    <meta name="title" content="galabill"/>
+    <meta name="description" content="make your bias up"/>
+
+    <meta property="og:url" content="https://www.galabill.com{{ request.get_full_path }}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="galabill"/>
+    <meta property="og:site_name" content="galabill"/>
+    <meta property="og:description" content="make your {{ obj.get_main_photo }} up"/>
+
+    <meta property="og:image" content="{{ obj.get_main_photo }}"/>
+
+    <meta name="twitter:image" content="{{ obj.get_main_photo }}">
+
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@galabill"/>
+    <meta name="twitter:creator" content="@galabill">
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+    <script src="{% static 'js/date_differ.min.js' %}"></script>
+
+    <script src="{% static 'js/obj_post_populate.min.js' %}"></script>
+    <script src="{% static 'js/obj_posts.min.js' %}"></script>
+
+</head>
+<body class="light_background_color height_100">
+{% include 'baseapp/_navbar.html' %}
+
+<div class="hidden" id="page_kind">feed</div>
+
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+
+<div class="hidden" id="obj_type">{{ obj_type }}</div>
+<div class="hidden" id="obj_id">{{ id }}</div>
+<div class="hidden" id="end_id"></div>
+
+<!--page info end -->
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row">
+                <div class="row div_base">
+                    <div><span class="obj_name">{{ obj.get_main_name }}</span></div>
+                </div>
+
+                <div id="post_list"></div>
+
+                <a href=""><div class="obj_more_load hidden" id="more_load">more_load</div></a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'baseapp/_modal_obj_populate.html' %}
+
+</body>
+</html>

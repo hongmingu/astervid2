@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill {{ group.groupmainname.group_name.name }}</title>
+    {% include 'others/header_static.html' %}
+
+    <meta name="keywords" content="galabill, celebs, celebrity, rank, top100, {{ group.groupmainname.group_name.name }}"/>
+    <meta name="author" content="galabill"/>
+    <meta name="title" content="galabill"/>
+    <meta name="description" content="make your bias up"/>
+
+    <meta property="og:url" content="https://www.galabill.com{{ request.get_full_path }}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="galabill"/>
+    <meta property="og:site_name" content="galabill"/>
+    <meta property="og:description" content="make your bias up"/>
+
+    <meta property="og:image" content="{{ group.groupmainphoto.file_300_url }}"/>
+
+    <meta name="twitter:image" content="{{ group.groupmainphoto.file_300_url }}">
+
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@galabill"/>
+    <meta name="twitter:creator" content="@galabill">
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+    <script src="{% static 'js/obj_profile.min.js' %}"></script>
+    <script src="{% static 'js/date_differ.min.js' %}"></script>
+</head>
+<body class="light_background_color height_100">
+<!--navbar start-->
+{% include 'baseapp/_navbar.html' %}
+
+<div class="hidden" id="page_kind">user</div>
+
+<div class="hidden" id="obj_id">{{ group.uuid }}</div>
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+<div class="hidden" id="obj_type">group</div>
+
+<!--page info end -->
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row" id="content">
+                <div class="row div_base" id="chat_base">
+                    <div align="center">
+                        <img class="img_300_300" id="img_300"
+                             src="{{ group.groupmainphoto.file_300_url }}">
+                    </div>
+
+                    <div align="center"><span>{{ group.groupmainname.group_name.name }}</span></div>
+
+                    <div align="center"><span>followers: </span><span
+                            id="follower_count">{{ group.groupfollowercount.count }}</span></div>
+
+
+                    {% if following == None %}
+                        <div align="center">
+                            <a href="">
+                                <span class="clickable pro_follow" id="follow">follow</span>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div align="center">
+                            <a href="">
+                                <span class="clickable pro_follow" id="follow">following <span
+                                        class="glyphicon glyphicon-ok"></span></span>
+                            </a>
+                        </div>
+                    {% endif %}
+                <br>
+                    <a href="/create/group/post/{{ group.uuid }}/">
+                        <div align="center"><span class="pro_obj_create_post clickable">go to create posts</span></div>
+                    </a>
+                <br>
+
+                    <a href="/group/{{ group.uuid }}/">
+                        <div align="center"><span class="pro_obj_read_post clickable">go to read posts</span></div>
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'baseapp/_modal_follow.html' %}
+
+</body>
+
+</html>

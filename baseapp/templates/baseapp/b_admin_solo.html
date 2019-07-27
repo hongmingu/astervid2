@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill solo list</title>
+    {% include 'others/header_static.html' %}
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+
+    <script src="{% static 'js/b_admin_solo.min.js' %}"></script>
+</head>
+<body class="light_background_color height_100">
+<!--navbar start-->
+{% include 'baseapp/_navbar.html' %}
+
+<div class="hidden" id="page_kind">home</div>
+
+<div class="hidden" id="last_pk"></div>
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+
+
+<!--page info end -->
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row">
+                <a href="{% url 'baseapp:b_admin' %}"><div class="h4">Main</div></a>
+                <div><h3>Solo</h3></div>
+                <div>name: <input id="name_input"></div>
+                <div>desc: <input id="desc_input"></div>
+                <a href=""><div style="background-color: silver" id="register">register</div></a>
+                <div>delete id: <input id="id_delete_input"></div>
+                <a href=""><div style="background-color: silver" id="id_delete">delete</div></a>
+
+                <div id="obj_list">
+                </div>
+                <a href=""><div style="background-color: pink" id="more_load">more_load</div></a>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

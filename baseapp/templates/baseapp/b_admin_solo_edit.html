@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill solo edit</title>
+    {% include 'others/header_static.html' %}
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+
+    <link rel="stylesheet" href="{% static 'cropper/cropper.min.css' %}">
+    <script src="{% static 'cropper/cropper.min.js' %}"></script>
+
+    <script src="{% static 'js/b_admin_solo_edit.min.js' %}"></script>
+</head>
+<body class="light_background_color height_100">
+<!--navbar start-->
+{% include 'baseapp/_navbar.html' %}
+
+<div class="hidden" id="page_kind">home</div>
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+<div class="hidden" id="id">{{ id }}</div>
+<!--page info end -->
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row">
+                <a href="{% url 'baseapp:b_admin' %}"><div class="h4">Main</div></a>
+                <a href="{% url 'baseapp:b_admin_solo' %}"><div class="h4">SoloList</div></a>
+                <div><h4>Solo Edit</h4></div>
+                <div>{{ id }}</div>
+                <div align="center">
+                    <img class="img_300_300" id="img_300" src="">
+                </div>
+                <div align="center">
+                        <span id="span_change_photo">Add</span><br>
+                        <span id="span_base_reset">BaseReset(unable)</span>
+                </div>
+                <div style="background-color: #8e97ed"><h4>Default Edit</h4></div>
+                <div class="h4">default name</div>
+                <div class="h5" id="default_name"></div>
+                <div>name: <input id="default_name_input"></div>
+                <div class="h4">default description</div>
+                <div class="h5" id="default_desc"></div>
+                <div>desc: <input id="default_desc_input"></div>
+                <a href=""><div style="background-color: silver" id="default_register">register</div></a>
+                <div class="h4" style="background-color: #8e97ed">main_name</div>
+                <div class="h5" id="main_name"></div>
+
+                <div>main name: <input id="main_name_input"></div>
+                <a href=""><div style="background-color: silver" id="main_name_register">main name register</div></a>
+                <div class="h4" style="background-color: #8e97ed">names list</div>
+                <div id="name_list"></div>
+                <div>name: <input id="name_input"></div>
+                <a href=""><div style="background-color: silver" id="name_register">name register</div></a>
+                <div>delete name: <input id="name_delete_input"></div>
+                    <!-- delete name 은 직접입력해서 지우는 걸로 하자 간단하게 하고 name등록시에 strip 걸어주는 것 잊지마.-->
+                <a href=""><div style="background-color: silver" id="name_delete">name delete</div></a>
+
+                <br>
+                <div>photo to main: <input id="photo_main_input"></div>
+                    <!-- delete name 은 직접입력해서 지우는 걸로 하자 간단하게 하고 name등록시에 strip 걸어주는 것 잊지마.-->
+                <a href=""><div style="background-color: silver" id="photo_main_register">photo main register</div></a>
+
+                <div>photo to delete: <input id="photo_delete_input"></div>
+                    <!-- delete name 은 직접입력해서 지우는 걸로 하자 간단하게 하고 name등록시에 strip 걸어주는 것 잊지마.-->
+                <a href=""><div style="background-color: silver" id="photo_delete">photo delete</div></a>
+
+                <div class="h4" style="background-color: #8e97ed">photos list</div>
+                <div id="photo_list"></div>
+
+                <div class="h4" style="background-color: #8e97ed">member(group) list</div>
+
+                <div>group register: <input id="member_register_input"></div>
+                <a href=""><div style="background-color: silver" id="member_register">group register</div></a>
+                <br>
+
+                <div id="member_list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL TO CROP THE IMAGE -->
+<div class="modal fade" id="modal_crop" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Crop the photo</h4>
+            </div>
+            <div class="modal-body padding_0">
+                <img src="" id="img_crop" class="max_width_100p">
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group pull-left" role="group">
+                    <button type="button" class="btn btn-default js-zoom-in">
+                        <span class="glyphicon glyphicon-zoom-in"></span>
+                    </button>
+                    <button type="button" class="btn btn-default js-zoom-out">
+                        <span class="glyphicon glyphicon-zoom-out"></span>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary js-crop-and-upload">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<img src="" id="img_chat_hidden" class="max_width_100p hidden">
+
+
+<form class="hidden" method="post" enctype="multipart/form-data" id="form_upload">
+    <input type="file" name="file" id="input_file" accept="image/jpeg, image/png" required>
+</form>
+
+</body>
+<script>
+</script>
+
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    {% include 'authapp/_header_title.html' %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    {% include 'others/header_static.html' %}
+    {% load static from staticfiles %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8">
+            {% include 'authapp/_logo.html' %}
+        </div>
+    </div>
+    <div class="row">
+        {% if clue %}
+            <p><h2>{{ clue.message }}</h2></p>
+        {% endif %}
+    </div>
+    {% if clue.success %}
+        <div class="row">
+            <p><h4>Thank you, Let's back to site:</h4></p>
+            {% include 'authapp/_logo.html' %}
+        </div>
+    {% else %}
+        <div class="row">
+            <p><h4>There is something wrong, Please retry your email confirmation:</h4></p>
+            {% include 'authapp/_logo.html' %}
+        </div>
+    {% endif %}
+    <div>If you have any question or something to say, come to my twitter: <a href="https://twitter.com/mingu_gam"
+                                                                              target="_blank"
+                                                                              rel="noopener noreferrer">click</a></div>
+</div>
+</body>
+</html>

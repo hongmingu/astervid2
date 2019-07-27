@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill update post</title>
+    {% include 'others/header_static.html' %}
+
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+
+    <script src="{% static 'js/update_obj_post.min.js' %}"></script>
+
+</head>
+<body class="light_background_color height_100">
+{% include 'baseapp/_navbar.html' %}
+
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+    <div class="hidden" id="user_username">{{ user.userusername.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+    <div class="hidden" id="user_username"></div>
+{% endif %}
+    <div class="hidden" id="id">{{ id }}</div>
+    <div class="hidden" id="obj_type">{{ obj_type }}</div>
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row" id="content">
+                <div class="row div_base">
+                    <div align="center">
+                        <img class="update_post_img" id="update_post_img" src="">
+                    </div>
+                    <br>
+                    <div class="update_post_name" id="update_post_name" align="center"></div>
+                    <br>
+                    <div>
+                        <textarea class="update_post_textarea" id="update_post_textarea" maxlength="5000"></textarea>
+                    </div>
+
+                    <br>
+                    <div class="update_post_gross_wrapper"><span class="update_post_gross" id="update_post_gross"></span> $</div>
+
+                    <div class="update_post_server_date" align="right" id="server_date">
+                    </div>
+                    <a href=""><div class="update_post_complete clickable" id="update_post_complete" align="center">complete</div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

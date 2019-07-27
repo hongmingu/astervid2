@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>galabill {{ chosen_user.userusername.username }}</title>
+    {% include 'others/header_static.html' %}
+
+    <meta name="keywords" content="galabill, celebs, celebrity, rank, top100, {{ chosen_user.userusername.username }}"/>
+    <meta name="author" content="galabill"/>
+    <meta name="title" content="galabill"/>
+    <meta name="description" content="make your bias up"/>
+
+    <meta property="og:url" content="https://www.galabill.com{{ request.get_full_path }}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="galabill"/>
+    <meta property="og:site_name" content="galabill"/>
+    <meta property="og:description" content="make your bias up"/>
+
+    <meta property="og:image" content="{{ chosen_user.userphoto.file_300_url }}"/>
+
+    <meta name="twitter:image" content="{{ chosen_user.userphoto.file_300_url }}">
+
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@galabill"/>
+    <meta name="twitter:creator" content="@{{ chosen_user.userusername.username }}">
+    {% load static from staticfiles %}
+    {% include 'others/header_navbar.html' %}
+    <script src="{% static 'js/post_populate.min.js' %}"></script>
+    <script src="{% static 'js/follower_following.min.js' %}"></script>
+    <script src="{% static 'js/date_differ.min.js' %}"></script>
+
+    <script src="{% static 'js/user_profile.min.js' %}"></script>
+
+</head>
+<body class="light_background_color height_100">
+{% include 'baseapp/_navbar.html' %}
+<div class="hidden" id="page_kind">user</div>
+
+<div class="hidden" id="chosen_user_id">{{ chosen_user.username }}</div>
+{% if user.is_authenticated %}
+    <div class="hidden" id="user_id">{{ user.username }}</div>
+{% else %}
+    <div class="hidden" id="user_id"></div>
+{% endif %}
+<div class="hidden" id="last_post_id"></div>
+<div class="hidden" id="delete_post_id"></div>
+
+<!--page info end -->
+
+<div class="container-fluid margin_top_50">
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+            <div class="row" id="content">
+                <div class="row div_base" id="chat_base">
+                    <div align="center">
+                        <img class="img_300_300" id="img_300"
+                             src="{{ chosen_user.userphoto.file_300_url }}">
+                    </div>
+
+                    <div align="center" class="pro_user_text_name"><span>{{ chosen_user.usertextname.name }}</span>
+                    </div>
+                    <div align="center" class="pro_username"><span>{{ chosen_user.userusername.username }}</span></div>
+
+                    <div class="row">
+                        <div class="col-xs-6" align="right"><span class="pro_follow_explain">following: </span>
+                            <a href="#">
+                                <span id="count_following"
+                                      class="pro_follow_count">{{ chosen_user.followingcount.count }}</span>
+                            </a>
+                        </div>
+                        <div class="col-xs-6" align="left"><span class="pro_follow_explain">followers: </span>
+                            <a href="#">
+                                <span id="count_follower"
+                                      class="pro_follow_count">{{ chosen_user.followercount.count }}</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if following == None %}
+                        <div class="hidden" align="center" id="follow_wrapper">
+                            <a href="">
+                                <span class="clickable pro_follow" id="follow">follow</span>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="hidden" align="center" id="follow_wrapper">
+                            <a href="">
+                                <span class="clickable pro_follow" id="follow">following <span
+                                        class="glyphicon glyphicon-ok"></span></span>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if chosen_user == user %}
+                        <div align="right">
+                            <span class="log_current">{{ user.wallet.gross }}</span>
+                            <span class="log_current_dollar">$</span>
+                        </div>
+                        <div align="right">
+                            <a href="{% url 'baseapp:log_charge' %}"><span
+                                    class="log_pay_charge clickable">charge log</span></a>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <div id="user_profile_post_list"></div>
+                <a href="">
+                    <div class="user_profile_more_load hidden" id="more_load" align="center">more load</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'baseapp/_modal_post_delete.html' %}
+{% include 'baseapp/_modal_populate.html' %}
+{% include 'baseapp/_modal_follow.html' %}
+
+</body>
+</html>
