@@ -15,7 +15,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, IntegrityError, transaction
 from django.utils.text import capfirst
 
-from authapp.models import UserGender, UserBirthday, UserPhoto, UserTextName, UserUsername, UserPrimaryEmail, UserToken
+from authapp.models import UserPhoto, UserFullName, UserUsername, UserPrimaryEmail, UserToken
 from authapp.utils import make_id
 from notice.models import NoticeCount
 from relation.models import FollowerCount, FollowingCount

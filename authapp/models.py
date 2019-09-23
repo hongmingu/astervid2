@@ -10,7 +10,6 @@ from django.conf import settings
 # Create your models here.
 
 
-
 class UserUsername(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
@@ -27,38 +26,10 @@ class UserUsername(models.Model):
         return reverse('baseapp:user_profile', kwargs={'user_username': self.username})
 
 
-class UserBirthday(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    birthday = models.DateField(blank=True, null=True)
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "UserBrithday for %s" % self.user
-
-
-STATUS_CHOICES = (
-    (2, "female"),
-    (1, "male"),
-)
-
-
-class UserGender(models.Model):
-
-    gender = models.IntegerField(choices=STATUS_CHOICES, default=0)
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "UserGender for %s" % self.user
-
-
-class UserTextName(models.Model):
+class UserFullName(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    name = models.CharField(max_length=30)
+    full_name = models.CharField(max_length=30)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -195,13 +166,14 @@ class UserToken(models.Model):
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = self.generate_token()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def generate_token(self):
         return binascii.hexlify(os.urandom(20)).decode()
 
     def __str__(self):
         return "token: %s, username: %s" % (self.token, self.user.userusername.username)
+
 
 def test_get_file_path(instance, filename):
     ext = filename.split('.')[-1]

@@ -15,7 +15,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, IntegrityError, transaction
 from django.utils.text import capfirst
 
-from authapp.models import UserGender, UserBirthday, UserPhoto, UserTextName, UserUsername, UserPrimaryEmail
+from authapp.models import UserPhoto, UserFullName, UserUsername, UserPrimaryEmail
 from authapp.utils import make_id
 from notice.models import NoticeCount
 from relation.models import FollowerCount, FollowingCount
@@ -70,28 +70,32 @@ class Command(BaseCommand):
                     user=new_user_create,
                     username=new_username,
                 )
-                new_user_text_name = UserTextName.objects.create(
+                new_user_text_name = UserFullName.objects.create(
                     user=new_user_create,
-                    name=new_name
+                    full_name=new_name
                 )
                 new_user_photo = UserPhoto.objects.create(
                     user=new_user_create,
                 )
 
-                birthday = str(1991) + '-' + str(2) + '-' + str(26)
+                #
+                # birthday = str(1991) + '-' + str(2) + '-' + str(26)
+                #
+                # new_user_birthday = UserBirthday.objects.create(
+                #     user=new_user_create,
+                #     birthday=birthday
+                # )
+                # new_user_gender = UserGender.objects.create(
+                #     user=new_user_create,
+                #     gender=1
+                # )
 
-                new_user_birthday = UserBirthday.objects.create(
-                    user=new_user_create,
-                    birthday=birthday
-                )
-                new_user_gender = UserGender.objects.create(
-                    user=new_user_create,
-                    gender=1
-                )
                 # 여기 기본적인 릴레이션 모델
                 new_following_count = FollowingCount.objects.create(user=new_user_create)
                 new_follower_count = FollowerCount.objects.create(user=new_user_create)
                 new_notice_count = NoticeCount.objects.create(user=new_user_create)
+
+
 
         except Exception as e:
             print(e)

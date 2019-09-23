@@ -9,6 +9,7 @@ from .models import UserUsername, UserPrimaryEmail
 class EmailOrUsernameAuthBackend(ModelBackend):
 
     def authenticate(self, username=None, password=None):
+        user = None
         if '@' in username:
             try:
                 user_object = UserPrimaryEmail.objects.get(email=username)
@@ -25,13 +26,15 @@ class EmailOrUsernameAuthBackend(ModelBackend):
                 return 2
             user = user_object.user
             # kwargs = {'username': username}
-        return user
-        try:
-            # user = User.objects.get(**kwargs)
-            if user.check_password(password):
-                return user
-        except User.DoesNotExist:
-            return 3
+        if user is not None:
+            try:
+                # user = User.objects.get(**kwargs)
+                if user.check_password(password):
+                    return user
+            except User.DoesNotExist:
+                return 3
+        else:
+            return 4
 
     def user_can_authenticate(self, user):
         return True

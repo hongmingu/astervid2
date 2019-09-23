@@ -6,27 +6,7 @@ from authapp.models import UserUsername, UserPrimaryEmail
 
 from PIL import Image
 from django.core.files import File
-from .models import UserPhoto, STATUS_CHOICES
-
-
-class UserCreateForm(forms.ModelForm):
-
-    name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'name'}))
-    username = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'username(id)'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'password'}))
-    password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control',
-                                                                         'placeholder': 'password_confirm'}))
-
-    year = forms.IntegerField(initial='', widget=forms.Select(attrs={'class': 'form-control', 'id': 'years', 'placeholder': 'Year'}), required=True)
-    month = forms.IntegerField(initial='', widget=forms.Select(attrs={'class': 'form-control', 'id': 'months', 'placeholder': 'Month'}), required=True)
-    day = forms.IntegerField(initial='', widget=forms.Select(attrs={'class': 'form-control', 'id': 'days', 'placeholder': 'Day'}), required=True)
-    gender = forms.ChoiceField(choices=STATUS_CHOICES, widget=forms.RadioSelect(), required=True)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'year', 'month', 'day', 'gender']
+from .models import UserPhoto
 
 
 class LoginForm(forms.ModelForm):

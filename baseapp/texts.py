@@ -1,4 +1,4 @@
-# from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 #
 # BAD_ACCESS = 'Bad Access'
 # UNEXPECTED_ERROR = 'unexpected error'
@@ -20,7 +20,9 @@
 # EMAIL_LENGTH_OVER_255 = 'You have to change email length'
 # EMAIL_ALREADY_USED = 'This email is already used'
 # EMAIL_CONFIRMATION_EXTRA_ERROR = 'email confirmation goes wrong'
+
 EMAIL_CONFIRMATION_SUBJECT = 'Email confirmation to activate your account'
+
 # EMAIL_ADDED_SENT = 'email has added, confirm your email'
 # EMAIL_SENT = 'email has been sent, confirm your email'
 # EMAIL_NOT_EXIST = 'There is no email like that'

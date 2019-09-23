@@ -111,11 +111,11 @@ class NoticePostComment(models.Model):
         return "Notice_pk: %s, post_comment_user: %s" % (self.pk, self.post_comment.user.userusername.username)
 
 
-class NoticePostLike(models.Model):
+class NoticePostReact(models.Model):
     notice = models.OneToOneField(Notice, on_delete=models.CASCADE, null=True, blank=True)
-    post_like = models.ForeignKey(PostLike, on_delete=models.CASCADE, null=True, blank=True)
+    post_react = models.ForeignKey(PostReact, on_delete=models.CASCADE, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "Notice_pk: %s, post_like_user: %s" % (self.pk, self.post_like.user.userusername.username)
+        return "Notice_pk: %s, post_like_user: %s" % (self.pk, self.post_react.user.userusername.username)

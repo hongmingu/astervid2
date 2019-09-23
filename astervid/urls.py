@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     re_path(r'^u/', include('authapp.urls')),
-    re_path(r'^', include('baseapp.urls')),
+    re_path(r'^r/', include('baseapp.urls')),
 ]
 
 if settings.DEBUG:

@@ -15,7 +15,7 @@ KINDS_CHOICES = (
 )
 
 '''
-@receiver(post_save, sender=PostLike)
+@receiver(post_save, sender=PostReact)
 def created_post_like(sender, instance, created, **kwargs):
     if created:
         if instance.user == instance.post.user:
@@ -192,7 +192,7 @@ def deleted_notice_post_comment(sender, instance, **kwargs):
 
 
 # notice post_like
-@receiver(post_save, sender=PostLike)
+@receiver(post_save, sender=PostReact)
 def created_post_like(sender, instance, created, **kwargs):
     if created:
         if instance.user == instance.post.user:
@@ -213,7 +213,7 @@ def created_post_like(sender, instance, created, **kwargs):
             pass
 
 
-@receiver(post_delete, sender=PostLike)
+@receiver(post_delete, sender=PostReact)
 def deleted_post_like(sender, instance, **kwargs):
     if instance.notice:
         try:
@@ -272,7 +272,7 @@ def created_post(sender, instance, created, **kwargs):
         try:
             with transaction.atomic():
                 post_count = PostCommentCount.objects.create(post=instance)
-                post_like_count = PostLikeCount.objects.create(post=instance)
+                post_like_count = PostReactCount.objects.create(post=instance)
         except Exception as e:
             print(e)
             pass

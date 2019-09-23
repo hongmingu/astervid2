@@ -25,7 +25,6 @@ from django.http import JsonResponse
 from authapp import options
 from authapp import texts
 from object.models import *
-from .forms import BAdminGroupPhotoForm, BAdminSoloPhotoForm
 from relation.models import *
 from notice.models import *
 from .models import *
@@ -1360,7 +1359,7 @@ def re_post_populate(request):
 
             like = 'false'
             if request.user.is_authenticated:
-                if PostLike.objects.filter(post=post, user=request.user).exists():
+                if PostReact.objects.filter(post=post, user=request.user).exists():
                     like = 'true'
 
             output = {
@@ -1500,7 +1499,7 @@ def re_post_like(request):
 
                 post_like = None
                 try:
-                    post_like = PostLike.objects.get(post=post, user=request.user)
+                    post_like = PostReact.objects.get(post=post, user=request.user)
                 except Exception as e:
                     pass
 
@@ -1516,7 +1515,7 @@ def re_post_like(request):
                 else:
                     try:
                         with transaction.atomic():
-                            post_like = PostLike.objects.create(post=post, user=request.user)
+                            post_like = PostReact.objects.create(post=post, user=request.user)
                             liked = 'true'
                     except Exception as e:
                         print(e)
@@ -1545,13 +1544,13 @@ def re_post_like_list(request):
                 output = []
                 if post is not None:
                     if next_id == '':
-                        likes = PostLike.objects.filter(post=post).order_by('created')[:step]
+                        likes = PostReact.objects.filter(post=post).order_by('created')[:step]
                     else:
                         try:
-                            last_like = PostLike.objects.get(post=post, user__username=next_id)
+                            last_like = PostReact.objects.get(post=post, user__username=next_id)
                         except Exception as e:
                             return JsonResponse({'res': 0})
-                        likes = PostLike.objects.filter(Q(post=post) & Q(pk__gte=last_like.pk)).order_by('created')[:step]
+                        likes = PostReact.objects.filter(Q(post=post) & Q(pk__gte=last_like.pk)).order_by('created')[:step]
 
                     count = 0
                     for like in likes:

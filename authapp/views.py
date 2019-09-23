@@ -23,7 +23,6 @@ from django.http import JsonResponse
 from authapp import options
 from authapp import texts
 from relation.models import FollowerCount, FollowingCount
-from object.models import Wallet
 from notice.models import NoticeCount
 from .forms import *
 from .models import *
@@ -51,6 +50,8 @@ def test_token(request):
 
         print(user)
         print(token)
+
+        return JsonResponse([{'user': user.username, 'token': token}], safe=False)
 
     else:
         print("No")
@@ -368,7 +369,7 @@ def main_create_log_in(request):
             if form.is_valid():
                 new_user_create = None
 
-                new_name = form.cleaned_data['name']
+                new_name = form.cleaned_data['full_name']
                 new_username = form.cleaned_data['username']
                 new_password = form.cleaned_data['password']
                 new_email = form.cleaned_data['email']
@@ -412,7 +413,7 @@ def main_create_log_in(request):
                             user=new_user_create,
                             username=new_username,
                         )
-                        new_user_text_name = UserTextName.objects.create(
+                        new_user_text_name = UserFullName.objects.create(
                             user=new_user_create,
                             name=new_name
                         )

@@ -1,0 +1,13 @@
+{
+  "pings": [
+    {
+      "id": "happy1", "ex": "hi_1", "opt": ["hope", "love", "good"], "front": "on"
+    },
+    {
+      "id": "story1", "ex": "star_1", "opt": ["hope"], "front": "on"
+    }
+  ],
+  "opt_list": [
+    "hope", "love", "good"
+  ]
+}
