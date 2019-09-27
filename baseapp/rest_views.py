@@ -68,6 +68,7 @@ def refresh_search_content_pings(request):
                 if patch_item["opt"] == opt_item:
 
                     sample_num = len(patch_item["pings"]) if len(patch_item["pings"]) < 10 else 10
+                    # sample_num = 2
                     patch_list = random.sample(patch_item["pings"], sample_num)
                     content_element = {"opt": opt_item, "pings": patch_list}
                     content_list.append(content_element)
