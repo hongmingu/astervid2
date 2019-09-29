@@ -50,6 +50,29 @@ from .opts import *
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+
+@csrf_exempt
+def refresh_ping_search_result(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+    if token_authenticate(request) is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    search_word = request.POST.get('search_word', None)
+    content_list = []
+
+    from re import search
+    for item in PINGS:
+        if search_word in item.ping_text:
+            content_list.append(item.ping_id)
+
+        # if search(search_word, item.ping_text):
+        #     content_list.append(item.ping_id)
+    print(str(content_list))
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': content_list}, safe=False)
+
+
 @csrf_exempt
 def refresh_search_content_pings(request):
     if not request.method == "POST":

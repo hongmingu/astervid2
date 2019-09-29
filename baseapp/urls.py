@@ -39,6 +39,8 @@ urlpatterns = [
     re_path(r'^rest/refresh_recommend_pings/$', base_rest_views.refresh_recommend_pings, name="refresh_recommend_pings"),
     re_path(r'^rest/refresh_search_content_pings/$', base_rest_views.refresh_search_content_pings,
             name="refresh_search_content_pings"),
+    re_path(r'^rest/refresh_ping_search_result/$', base_rest_views.refresh_ping_search_result,
+            name="refresh_ping_search_result"),
 
 ]
 
