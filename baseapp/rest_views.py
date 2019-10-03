@@ -50,6 +50,56 @@ from .opts import *
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+@csrf_exempt
+def get_follow_feed(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    step = 50
+
+    posts = Post.objects.filter().exclude().order_by('-created').distinct()[:step]
+
+    result = []
+
+    post_index = 0
+    for item in posts:
+        post_index += 1
+        if post_index % 10 == 0:
+            # 0, 10, 20, 30... 일 때
+            pass
+        result.append({"opt": DEFAULT_PING, "con": get_serialized_post(item.uuid, user)})
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+
+
+
+
+@csrf_exempt
+def send_instant_ping(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+
+    ping_id = request.POST.get('ping_id', None)
+    if ping_id is None:
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    post_create = Post.objects.create(user=user, ping_id=ping_id)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': post_create.ping_id}, safe=False)
+
 
 @csrf_exempt
 def refresh_ping_search_result(request):

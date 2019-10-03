@@ -42,6 +42,11 @@ urlpatterns = [
     re_path(r'^rest/refresh_ping_search_result/$', base_rest_views.refresh_ping_search_result,
             name="refresh_ping_search_result"),
 
+    re_path(r'^rest/send_instant_ping/$', base_rest_views.send_instant_ping,
+            name="send_instant_ping"),
+
+    re_path(r'^rest/get_follow_feed/$', base_rest_views.get_follow_feed,
+            name="get_follow_feed"),
 ]
 
 

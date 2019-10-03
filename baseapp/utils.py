@@ -155,6 +155,42 @@ def asterisk_total(x):
     c = x.split('@')[1].split('.')[-1]
     return asterisk_part(a) + '@' + asterisk_part(b) + '.' + asterisk_part(c)
 
+def get_react_count(post, user):
+    return 6
+
+def get_comment_count(post, user):
+    return 6
+
+def get_is_reacted(post, user):
+    return False
+
+def get_comment_display_user_list(user):
+    return []
+
+
+def get_react_display_user_list(user):
+    return []
+
+
+def get_serialized_post(post_id, user_who_read):
+    post = Post.objects.get(uuid=post_id)
+    if post is None:
+        return None
+    user = post.user
+    serialized_post = {
+        'post_id': post.uuid,
+        'post_text': post.get_post_text(),
+        'pint_id': post.ping_id,
+        'user_id': user.username,
+        'username': user.userusername,
+        'user_fullname': user.userfullname,
+        'comment_display_user_list': get_comment_display_user_list(user_who_read),
+        'comment_count': get_comment_count(post, user_who_read),
+        'react_display_user_list': get_react_display_user_list(user_who_read),
+        'react_count': get_react_count(post, user_who_read),
+        'is_reacted': get_is_reacted(post, user_who_read),
+    }
+    return serialized_post
 
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):

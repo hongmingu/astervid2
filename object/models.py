@@ -13,7 +13,7 @@ class Post(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     uuid = models.CharField(max_length=34, unique=True, null=True, default=None)
-    ping_num = models.CharField(max_length=34, unique=True, null=True, default=None)
+    ping_id = models.CharField(max_length=34, unique=True, null=True, default=None)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -22,8 +22,22 @@ class Post(models.Model):
         return "user: %s, uuid: %s" % (self.user.userusername.username, self.uuid)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.uuid = uuid.uuid4().hex
+        if self.uuid is None:
+            self.uuid = uuid.uuid4().hex
         super().save(force_insert, force_update, using, update_fields)
+
+    def get_post_text(self):
+        post_text = None
+        try:
+            post_text = PostText.objects.latest(post=self)
+        except Exception as e:
+            pass
+        if post_text is not None:
+            return post_text.text
+        else:
+            return None
+
+
 
 
 class PostText(models.Model):
