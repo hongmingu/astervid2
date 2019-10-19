@@ -180,17 +180,47 @@ def get_serialized_post(post_id, user_who_read):
     serialized_post = {
         'post_id': post.uuid,
         'post_text': post.get_post_text(),
-        'pint_id': post.ping_id,
+        'ping_id': post.ping_id,
         'user_id': user.username,
         'username': user.userusername.username,
-        'user_fullname': user.userfullname.full_name,
+        'user_photo': user.userphoto.file_300_url(),
+        'full_name': user.userfullname.full_name,
         'comment_display_user_list': get_comment_display_user_list(user_who_read),
         'comment_count': get_comment_count(post, user_who_read),
         'react_display_user_list': get_react_display_user_list(user_who_read),
         'react_count': get_react_count(post, user_who_read),
         'is_reacted': get_is_reacted(post, user_who_read),
+        'created': post.created
     }
     return serialized_post
+
+
+def get_user_content(user, user_who_read):
+
+    if user is None:
+        return None
+    serialized = {
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'full_name': user.userfullname.full_name,
+        'photo': user.userphoto.file_300_url(),
+        'following_list': get_following_list(user, user_who_read),
+        'follower_list': get_follower_list(user, user_who_read),
+        'is_followed': get_is_followed(user, user_who_read)
+    }
+    return serialized
+
+
+def get_following_list(user, user_who_read):
+    return []
+
+
+def get_follower_list(user, user_who_read):
+    return []
+
+
+def get_is_followed(user, user_who_read):
+    return False
 
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):

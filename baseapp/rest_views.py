@@ -51,6 +51,61 @@ from .opts import *
 # ---------------------------------------------------------------------------------------------------------------------------
 
 @csrf_exempt
+def follow(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    user_id = request.POST.get('user_id', None)
+
+    user_find = User.objects.get(username=user_id)
+    if user_find is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    if user == user_find:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    follow_given, created = Follow.objects.get_or_create(user=user, follow=user_find)
+    if created is False:
+        follow_given.delete()
+
+    # todo: 이제 get user profile url 이랑 디테일 정리.
+
+    result = []
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+@csrf_exempt
+def get_user_profile(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    user_id = request.POST.get('user_id', None)
+
+    user_find = User.objects.get(username=user_id)
+    if user_find is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+    # todo: 이제 get user profile url 이랑 디테일 정리.
+
+    result = []
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+
+@csrf_exempt
 def get_follow_feed(request):
     if not request.method == "POST":
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
@@ -73,6 +128,7 @@ def get_follow_feed(request):
             # 0, 10, 20, 30... 일 때
             pass
         result.append({"opt": DEFAULT_PING, "con": get_serialized_post(item.uuid, user)})
+    print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
