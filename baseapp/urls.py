@@ -47,6 +47,12 @@ urlpatterns = [
 
     re_path(r'^rest/get_follow_feed/$', base_rest_views.get_follow_feed,
             name="get_follow_feed"),
+
+    re_path(r'^rest/follow/$', base_rest_views.follow,
+            name="follow"),
+
+    re_path(r'^rest/search/$', base_rest_views.search,
+            name="search"),
 ]
 
 

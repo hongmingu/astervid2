@@ -195,32 +195,29 @@ def get_serialized_post(post_id, user_who_read):
     return serialized_post
 
 
-def get_user_content(user, user_who_read):
+def get_serialized_user(user, user_who_read):
 
-    if user is None:
+    if user is None or user_who_read is None:
         return None
     serialized = {
         'user_id': user.username,
         'username': user.userusername.username,
         'full_name': user.userfullname.full_name,
-        'photo': user.userphoto.file_300_url(),
-        'following_list': get_following_list(user, user_who_read),
-        'follower_list': get_follower_list(user, user_who_read),
+        'user_photo': user.userphoto.file_300_url(),
+        'related_follower_list': get_related_follower_list(user, user_who_read),
         'is_followed': get_is_followed(user, user_who_read)
     }
     return serialized
 
 
-def get_following_list(user, user_who_read):
-    return []
-
-
-def get_follower_list(user, user_who_read):
+def get_related_follower_list(user, user_who_read):
     return []
 
 
 def get_is_followed(user, user_who_read):
-    return False
+
+    return Follow.objects.filter(user=user_who_read, follow=user).exists()
+
 
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):

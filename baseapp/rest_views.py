@@ -50,6 +50,39 @@ from .opts import *
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+
+@csrf_exempt
+def search(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    step = 50
+
+    search_word = request.POST.get('search_word', None)
+
+    users = User.objects.filter(Q(userusername__username__icontains=search_word) |
+                                    Q(userfullname__full_name__icontains=search_word)).exclude(
+        Q(username=user.username)).order_by('-userusername__created').distinct()[:step]
+
+    if users is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    # todo: 이제 get user profile url 이랑 디테일 정리.
+    result = []
+
+    for item in users:
+        result.append(get_serialized_user(item, user))
+
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
 @csrf_exempt
 def follow(request):
     if not request.method == "POST":
@@ -78,7 +111,7 @@ def follow(request):
     result = []
     print(result)
 
-    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': created}, safe=False)
 
 
 @csrf_exempt
