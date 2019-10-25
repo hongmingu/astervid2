@@ -345,17 +345,24 @@ def sign_up(request):
 @csrf_exempt
 def add_post(request):
     if token_authenticate(request) is not None:
-        user, token = token_authenticate(request)
 
-        ping_num = request.POST.get('ping_num', None)
-        text = request.POST.get('text', None)
+        user = token_authenticate(request)
 
-        post_create = Post.objects.create(user=user, ping_num=ping_num)
+        if user is None:
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
-        if text is not None:
-            post_text = PostText.objects.create(post=post_create, text=text)
+        ping_id = request.POST.get('ping_id', None)
+        ping_text = request.POST.get("ping_text", None)
 
-        return JsonResponse({'rc': 1, 'content': [{'user': user.username, 'token': token}]}, safe=False)
+        post_text = request.POST.get('post_text', None)
+
+        post_text = post_text.strip()
+        if post_text is None or post_text != "":
+            post_text = None
+
+        post_create = Post.objects.create(user=user, ping_id=ping_id, post_text=post_text, ping_text=)
+
+        return JsonResponse({'rc': 1, 'content': get_serialized_post(post_create.uuid, user)}, safe=False)
 
     else:
         # failed to login

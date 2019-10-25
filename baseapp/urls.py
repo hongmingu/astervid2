@@ -31,7 +31,7 @@ urlpatterns = [
     re_path(r'^group/(?P<uuid>([0-9a-f]{32}))/$', views.group_posts, name="group_posts"),
 
     # --------------------------------------------------------------------------------
-    re_path(r'^rest/add/post/$', base_rest_views.add_post, name="rest_ping"),
+    re_path(r'^rest/add_post/$', base_rest_views.add_post, name="add_post"),
     re_path(r'^rest/sign_up/$', base_rest_views.sign_up, name="sign_up"),
     re_path(r'^rest/log_in/$', base_rest_views.log_in, name="log_in"),
 

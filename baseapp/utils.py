@@ -179,7 +179,7 @@ def get_serialized_post(post_id, user_who_read):
     user = post.user
     serialized_post = {
         'post_id': post.uuid,
-        'post_text': post.get_post_text(),
+        'post_text': post.post_text,
         'ping_id': post.ping_id,
         'user_id': user.username,
         'username': user.userusername.username,
