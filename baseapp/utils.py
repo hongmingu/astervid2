@@ -179,7 +179,7 @@ def get_serialized_post(post_id, user_who_read):
     user = post.user
     serialized_post = {
         'post_id': post.uuid,
-        'post_text': post.post_text,
+        'post_text': post.text,
         'ping_id': post.ping_id,
         'user_id': user.username,
         'username': user.userusername.username,
@@ -191,6 +191,21 @@ def get_serialized_post(post_id, user_who_read):
         'react_count': get_react_count(post, user_who_read),
         'is_reacted': get_is_reacted(post, user_who_read),
         'created': post.created
+    }
+    return serialized_post
+
+def get_serialized_comment(comment):
+    if comment is None:
+        return None
+    user = comment.user
+    serialized_post = {
+        'comment_id': comment.uuid,
+        'comment_text': comment.text,
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'user_photo': user.userphoto.file_300_url(),
+        'full_name': user.userfullname.full_name,
+        'created': comment.created
     }
     return serialized_post
 

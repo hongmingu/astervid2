@@ -343,6 +343,74 @@ def sign_up(request):
 
 
 @csrf_exempt
+def react(request):
+    if token_authenticate(request) is not None:
+
+        user = token_authenticate(request)
+
+        if user is None:
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+        post_id = request.POST.get('post_id', None)
+
+        try:
+            post = Post.objects.get(uuid=post_id)
+        except Post.DoesNotExist as e:
+            print(post_id)
+            print(e)
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+        result = None
+
+        if PostReact.objects.filter(user=user, post=post).exists():
+            PostReact.objects.filter(user=user, post=post).delete()
+            result = False
+        else:
+            post_react_create = PostReact.objects.create(user=user, post=post)
+            result = True
+
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+    else:
+        # failed to login
+        return JsonResponse({'rc': 0})
+
+
+@csrf_exempt
+def add_comment(request):
+    if token_authenticate(request) is not None:
+
+        user = token_authenticate(request)
+
+        if user is None:
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+        post_id = request.POST.get('post_id', None)
+
+        try:
+            post = Post.objects.get(uuid=post_id)
+        except Post.DoesNotExist as e:
+            print(post_id)
+            print(e)
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+        comment_text = request.POST.get('comment_text', None)
+        comment_text = comment_text.strip()
+        if comment_text is None or comment_text == "":
+            comment_text = None
+
+        comment_create = PostComment.objects.create(user=user, post=post, text=comment_text)
+
+        result = {"opt": DEFAULT_PING, "con": get_serialized_comment(comment_create)}
+
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+    else:
+        # failed to login
+        return JsonResponse({'rc': 0})
+
+
+@csrf_exempt
 def add_post(request):
     if token_authenticate(request) is not None:
 
@@ -355,14 +423,18 @@ def add_post(request):
         ping_text = request.POST.get("ping_text", None)
 
         post_text = request.POST.get('post_text', None)
+        # print("ping_id: "+str(ping_id))
+        # print("ping_text: "+str(ping_text))
+        print("post_text: "+str(post_text))
 
         post_text = post_text.strip()
-        if post_text is None or post_text != "":
+        if post_text is None or post_text == "":
             post_text = None
 
-        post_create = Post.objects.create(user=user, ping_id=ping_id, post_text=post_text, ping_text=)
+        post_create = Post.objects.create(user=user, ping_id=ping_id, text=post_text, ping_text=ping_text)
+        result = {"opt": DEFAULT_PING, "con": get_serialized_post(post_create.uuid, user)}
 
-        return JsonResponse({'rc': 1, 'content': get_serialized_post(post_create.uuid, user)}, safe=False)
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
     else:
         # failed to login

@@ -32,6 +32,11 @@ urlpatterns = [
 
     # --------------------------------------------------------------------------------
     re_path(r'^rest/add_post/$', base_rest_views.add_post, name="add_post"),
+
+    re_path(r'^rest/add_comment/$', base_rest_views.add_comment, name="add_comment"),
+
+    re_path(r'^rest/react/$', base_rest_views.react, name="react"),
+
     re_path(r'^rest/sign_up/$', base_rest_views.sign_up, name="sign_up"),
     re_path(r'^rest/log_in/$', base_rest_views.log_in, name="log_in"),
 
@@ -53,6 +58,7 @@ urlpatterns = [
 
     re_path(r'^rest/search/$', base_rest_views.search,
             name="search"),
+
 ]
 
 
