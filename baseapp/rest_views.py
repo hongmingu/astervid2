@@ -50,6 +50,43 @@ from .opts import *
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+@csrf_exempt
+def fcm_push(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    registration_id = request.POST.get('fcm_token', None)
+
+    if registration_id is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    from pyfcm import FCMNotification
+
+    push_service = FCMNotification(api_key="AAAAtW7jvvs:APA91bHmJB1UsjuwRiggVmOMnyDPMOd-PJ0t-WxQ0jLV0eku9dLS2LPIvraOecrf-QmI0SR-crle-fYclihygLx7drwVpLkLo2QRFenbG1OIvHWYObPmi8b8FXvrIv9F-3UttK6qISYu")
+
+    registration_ids = [
+        ]
+
+    for i in range(10):
+        registration_ids.append(registration_id)
+
+    data_message = {
+        "Nick": "Mario",
+        "body": "great match!",
+        "Room": "PortugalVSDenmark"
+    }
+    message_body = "Hi john, your customized news for today is ready"
+
+    result = push_service.notify_multiple_devices(registration_ids=registration_ids, data_message=data_message)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
 
 @csrf_exempt
 def search(request):
@@ -278,6 +315,9 @@ def refresh_for_you_pings(request):
         ping_ids = []
         for item in pings:
             ping_ids.append(item.ping_id)
+
+
+
 
         return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': {'ping_ids': ping_ids}}, safe=False)
 

@@ -58,7 +58,8 @@ urlpatterns = [
 
     re_path(r'^rest/search/$', base_rest_views.search,
             name="search"),
-
+    re_path(r'^rest/fcm_push/$', base_rest_views.fcm_push,
+            name="fcm_push"),
 ]
 
 
