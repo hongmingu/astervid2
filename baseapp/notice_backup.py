@@ -33,7 +33,7 @@ def created_post_like(sender, instance, created, **kwargs):
 
 
 @receiver(post_delete, sender=NoticePostLike)
-def deleted_notice_post_like(sender, instance, **kwargs):
+def deleted_notice_post_react(sender, instance, **kwargs):
     try:
         if instance.notice:
             try:
@@ -199,7 +199,7 @@ def created_post_like(sender, instance, created, **kwargs):
             return
         try:
             with transaction.atomic():
-                notice = Notice.objects.create(user=instance.post.user, kind=POST_LIKE, uuid=uuid.uuid4().hex)
+                notice = Notice.objects.create(user=instance.post.user, kind=POST_REACT, uuid=uuid.uuid4().hex)
                 notice_post_like = NoticePostLike.objects.create(notice=notice, post_like=instance)
                 notice_count = instance.post.user.noticecount
                 notice_count.count = F('count') + 1

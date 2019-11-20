@@ -57,3 +57,5 @@ EMAIL_CONFIRMATION_SUBJECT = 'Email confirmation to activate your account'
 
 SITE_NAME = 'Galabill'
 SITE_DOMAIN = 'www.galabill.com'
+
+FCM_API_KEY = "AAAAtW7jvvs:APA91bHmJB1UsjuwRiggVmOMnyDPMOd-PJ0t-WxQ0jLV0eku9dLS2LPIvraOecrf-QmI0SR-crle-fYclihygLx7drwVpLkLo2QRFenbG1OIvHWYObPmi8b8FXvrIv9F-3UttK6qISYu"

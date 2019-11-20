@@ -14,13 +14,14 @@ from django.utils.html import escape, _js_escapes, normalize_newlines
 # private , public은 나중에 한다. 귀찮다.
 
 FOLLOW = 1001
+# 여기 수정 요망.
 POST_COMMENT = 2002
-POST_LIKE = 2003
+POST_REACT = 2003
 
 KINDS_CHOICES = (
     (FOLLOW, "follow"),
     (POST_COMMENT, "post_comment"),
-    (POST_LIKE, "post_like"),
+    (POST_REACT, "post_like"),
 )
 
 
@@ -64,7 +65,7 @@ class Notice(models.Model):
                           'user_photo': get_result.user.userphoto.file_50_url(),
                           'comment_text': comment_text}
             return result
-        elif self.kind == POST_LIKE:
+        elif self.kind == POST_REACT:
             try:
                 get_result = self.noticepostlike.post_like
             except Exception as e:
@@ -119,3 +120,15 @@ class NoticePostReact(models.Model):
 
     def __str__(self):
         return "Notice_pk: %s, post_like_user: %s" % (self.pk, self.post_react.user.userusername.username)
+
+
+def get_fcm_opt_by_notice(notice_kind):
+    from baseapp import constants
+    if notice_kind == FOLLOW:
+        return constants.FCM_OPT_NOTICE_FOLLOW
+    elif notice_kind == POST_COMMENT:
+        return constants.FCM_OPT_NOTICE_COMMENT
+    elif notice_kind == POST_REACT:
+        return constants.FCM_OPT_NOTICE_REACT
+
+

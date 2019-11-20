@@ -63,5 +63,10 @@ INVALID_TOKEN = 10008
 DEFAULT_PING = 1
 TO_CLICK = 2
 
+# fcm push
+
+FCM_OPT_NOTICE_REACT = "fcm_opt_notice_react"
+FCM_OPT_NOTICE_COMMENT = "fcm_opt_notice_comment"
+FCM_OPT_NOTICE_FOLLOW = "fcm_opt_notice_follow"
 
 

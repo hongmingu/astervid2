@@ -50,17 +50,6 @@ class PostComment(models.Model):
         super().save(force_insert, force_update, using, update_fields)
 
 
-class PostCommentCount(models.Model):
-    post = models.OneToOneField(Post, on_delete=models.CASCADE, null=True, blank=True)
-    count = models.PositiveIntegerField(default=0)
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "post: %s" % self.post.pk
-
-
 class PostReact(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -73,15 +62,3 @@ class PostReact(models.Model):
 
     class Meta:
         unique_together = ('user', 'post',)
-
-
-class PostReactCount(models.Model):
-    post = models.OneToOneField(Post, on_delete=models.CASCADE, null=True, blank=True)
-    count = models.PositiveIntegerField(default=0)
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "post React Count: %s" % self.pk
-

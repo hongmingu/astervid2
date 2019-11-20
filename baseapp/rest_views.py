@@ -51,6 +51,117 @@ from .opts import *
 # ---------------------------------------------------------------------------------------------------------------------------
 
 @csrf_exempt
+def change_profile_photo(request):
+
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    print("request: " + str(request))
+    print("request: " + str(request.FILES['uploaded_file']))
+    end_id = request.POST.get('end_id', None)
+
+    from io import BytesIO
+    from PIL import Image
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    import os
+    import magic
+
+    mime = magic.Magic(mime=True)
+    file_loc = BytesIO(request.FILES['uploaded_file'].read())
+
+    print(mime.from_buffer(file_loc.read()))
+
+    PIL_TYPE = 'jpeg'
+    FILE_EXTENSION = 'jpg'
+    #
+    user_photo, created = UserPhoto.objects.get_or_create(user=user)
+    image = Image.open(file_loc)
+
+    # Save the thumbnail
+    temp_handle = BytesIO()
+    image.save(temp_handle, PIL_TYPE, quality=90)
+    temp_handle.seek(0)
+
+    # Save image to a SimpleUploadedFile which can be saved into ImageField
+    print(os.path.split(request.FILES['uploaded_file'].name)[-1])
+    suf = SimpleUploadedFile(os.path.split(request.FILES['uploaded_file'].name)[-1],
+                             temp_handle.read(), content_type='image/jpeg')
+    # Save SimpleUploadedFile into image field
+    user_photo.file_300.save(
+        '%s.%s' % (os.path.splitext(suf.name)[0], FILE_EXTENSION),
+        suf, save=True)
+
+    temp_handle.close()
+
+    print(user_photo.file_300.url)
+    end_id = request.POST.get('end_id', None)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': user_photo.file_300_url()}, safe=False)
+
+
+
+@csrf_exempt
+def get_notice(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+
+    step = 50
+
+    notices = Notice.objects.filter().exclude().order_by('-created').distinct()[:step]
+
+    result = []
+
+    for item in notices:
+        result.append(get_serialized_notice(item, user))
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+
+
+
+@csrf_exempt
+def get_notice(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+
+    step = 50
+
+    notices = Notice.objects.filter().exclude().order_by('-created').distinct()[:step]
+
+    result = []
+
+    for item in notices:
+        result.append(get_serialized_notice(item, user))
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+
+
+
+@csrf_exempt
 def fcm_push(request):
     if not request.method == "POST":
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
@@ -65,26 +176,31 @@ def fcm_push(request):
     if registration_id is None:
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
-    from pyfcm import FCMNotification
+    firebase_id, created = UserFirebaseInstanceId.objects.get_or_create(user=user)
 
-    push_service = FCMNotification(api_key="AAAAtW7jvvs:APA91bHmJB1UsjuwRiggVmOMnyDPMOd-PJ0t-WxQ0jLV0eku9dLS2LPIvraOecrf-QmI0SR-crle-fYclihygLx7drwVpLkLo2QRFenbG1OIvHWYObPmi8b8FXvrIv9F-3UttK6qISYu")
+    if firebase_id.instance_id != registration_id:
+        firebase_id.instance_id = registration_id
+        firebase_id.save()
+    # from pyfcm import FCMNotification
+    #
+    # push_service = FCMNotification(api_key="AAAAtW7jvvs:APA91bHmJB1UsjuwRiggVmOMnyDPMOd-PJ0t-WxQ0jLV0eku9dLS2LPIvraOecrf-QmI0SR-crle-fYclihygLx7drwVpLkLo2QRFenbG1OIvHWYObPmi8b8FXvrIv9F-3UttK6qISYu")
+    #
+    # registration_ids = [
+    #     ]
+    #
+    # for i in range(10):
+    #     registration_ids.append(registration_id)
+    #
+    # data_message = {
+    #     "opt": "",
+    #     "body": "great match!",
+    #     "Room": "PortugalVSDenmark"
+    # }
+    # message_body = "Hi john, your customized news for today is ready"
+    #
+    # result = push_service.notify_multiple_devices(registration_ids=registration_ids, data_message=data_message)
 
-    registration_ids = [
-        ]
-
-    for i in range(10):
-        registration_ids.append(registration_id)
-
-    data_message = {
-        "Nick": "Mario",
-        "body": "great match!",
-        "Room": "PortugalVSDenmark"
-    }
-    message_body = "Hi john, your customized news for today is ready"
-
-    result = push_service.notify_multiple_devices(registration_ids=registration_ids, data_message=data_message)
-
-    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': created}, safe=False)
 
 
 
@@ -335,13 +451,20 @@ def log_in(request):
     account = request.POST.get('account', None)
     password = request.POST.get('password', None)
 
-    success, result = get_user_token(account, password)
+    success, user = get_user_token(account, password)
 
-    print(result)
+    print(user)
+
+    content_result = {'token': user.usertoken.token,
+                      'profile_username': user.userusername.username,
+                      'profile_user_id': user.username,
+                      'profile_photo': user.userphoto.file_300_url(),
+                      'profile_full_name': user.userfullname.full_name,
+                      'profile_email': user.userprimaryemail.email}
     if success:
-        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': {'token': result}}, safe=False)
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': content_result}, safe=False)
     else:
-        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': result}}, safe=False)
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': False}}, safe=False)
 
 
 @csrf_exempt
@@ -375,11 +498,19 @@ def sign_up(request):
         return JsonResponse({'rc': 1, 'content': {'code': password_code}}, safe=False)
 
     # Then, go to is_valid below
-    user_create_success, return_value = user_create(full_name, email, password)
+    user_create_success, user = user_create(full_name, email, password)
     if not user_create_success:
         return JsonResponse({'rc': 1, 'content': {'code': USER_CREATE_FAILED}}, safe=False)
 
-    return JsonResponse({'rc': 1, 'content': {'code': USER_CREATED, 'token': return_value.token}}, safe=False)
+    content_result = {'token': user.usertoken.token,
+                      'profile_username': user.userusername.username,
+                      'profile_user_id': user.username,
+                      'profile_photo': user.userphoto.file_300_url(),
+                      'profile_full_name': user.userfullname.full_name,
+                      'profile_email': user.userprimaryemail.email,
+                      'code': USER_CREATED}
+
+    return JsonResponse({'rc': 1, 'content': content_result}, safe=False)
 
 
 @csrf_exempt
@@ -572,7 +703,7 @@ def test_json(request):
         temp_handle.seek(0)
 
         # Save image to a SimpleUploadedFile which can be saved into ImageField
-        # print(os.path.split(request.FILES['file'].name)[-1])
+        print(os.path.split(request.FILES['file'].name)[-1])
         suf = SimpleUploadedFile(os.path.split(request.FILES['uploaded_file'].name)[-1],
                                  temp_handle.read(), content_type='image/jpeg')
         # Save SimpleUploadedFile into image field

@@ -13,6 +13,8 @@ from paypal.standard.ipn.signals import valid_ipn_received
 from decimal import Decimal
 
 
+from authapp import texts
+
 @receiver(post_save, sender=Follow)
 def created_follow(sender, instance, created, **kwargs):
     if created:
@@ -69,9 +71,9 @@ def created_post_comment(sender, instance, created, **kwargs):
                     notice = Notice.objects.create(user=instance.post.user, kind=POST_COMMENT, uuid=uuid.uuid4().hex)
                     notice_post_comment = NoticePostComment.objects.create(notice=notice, post_comment=instance)
 
-                post_comment_count = instance.post.postcommentcount
-                post_comment_count.count = F('count') + 1
-                post_comment_count.save()
+                post = instance.post
+                post.comment_count = F('comment_count') + 1
+                post.save()
         except Exception:
             pass
 
@@ -80,9 +82,9 @@ def created_post_comment(sender, instance, created, **kwargs):
 def deleted_post_comment(sender, instance, **kwargs):
     try:
         with transaction.atomic():
-            post_comment_count = instance.post.postcommentcount
-            post_comment_count.count = F('count') - 1
-            post_comment_count.save()
+            post = instance.post
+            post.comment_count = F('comment_count') - 1
+            post.save()
     except Exception as e:
         print(e)
         pass
@@ -101,34 +103,37 @@ def deleted_notice_post_comment(sender, instance, **kwargs):
 @receiver(post_save, sender=PostReact)
 def created_post_like(sender, instance, created, **kwargs):
     if created:
+        print("PostReact")
+
         try:
             with transaction.atomic():
                 if not instance.user == instance.post.user:
-                    notice = Notice.objects.create(user=instance.post.user, kind=POST_LIKE, uuid=uuid.uuid4().hex)
-                    notice_post_like = NoticePostReact.objects.create(notice=notice, post_react=instance)
+                    notice = Notice.objects.create(user=instance.post.user, kind=POST_REACT, uuid=uuid.uuid4().hex)
+                    notice_post_react = NoticePostReact.objects.create(notice=notice, post_react=instance)
 
-                post_react_count = instance.post.postreactcount
-                post_react_count.count = F('count') + 1
-                post_react_count.save()
+                post = instance.post
+                post.react_count = F('react_count') + 1
+                post.save()
         except Exception as e:
             print(e)
             pass
 
 
 @receiver(post_delete, sender=PostReact)
-def deleted_post_like(sender, instance, **kwargs):
+def deleted_post_react(sender, instance, **kwargs):
     try:
         with transaction.atomic():
-            post_react_count = instance.post.postreactcount
-            post_react_count.count = F('count') - 1
-            post_react_count.save()
+
+            post = instance.post
+            post.react_count = F('react_count') - 1
+            post.save()
     except Exception as e:
         print(e)
         pass
 
 
 @receiver(post_delete, sender=NoticePostReact)
-def deleted_notice_post_like(sender, instance, **kwargs):
+def deleted_notice_post_react(sender, instance, **kwargs):
     try:
         with transaction.atomic():
             instance.notice.delete()
@@ -145,6 +150,34 @@ def created_notice(sender, instance, created, **kwargs):
                 notice_count = instance.user.noticecount
                 notice_count.count = F('count') + 1
                 notice_count.save()
+
+                from pyfcm import FCMNotification
+
+                push_service = FCMNotification(api_key=texts.FCM_API_KEY)
+
+                # registration_ids = []
+                # registration_ids.append(instance.user.userfirebaseinstanceid.instance_id)
+
+                from notice.models import get_fcm_opt_by_notice, FOLLOW, POST_REACT, POST_COMMENT
+
+                if instance.kind == POST_REACT:
+                    full_name = instance.user.userfullname.full_name
+                    photo = instance.user.userphoto.file_300_url()
+                elif instance.kind == POST_COMMENT:
+                    full_name = instance.user.userfullname.full_name
+                    photo = instance.user.userphoto.file_300_url()
+                elif instance.kind == FOLLOW:
+                    full_name = instance.user.userfullname.full_name
+                    photo = instance.user.userphoto.file_300_url()
+
+                data_message = {
+                    "opt": get_fcm_opt_by_notice(instance.kind),
+                    "full_name": full_name,
+                    "photo": photo
+                }
+
+                result = push_service.notify_single_device(registration_id=instance.user.userfirebaseinstanceid.instance_id, data_message=data_message)
+
         except Exception as e:
             print(e)
             pass
@@ -164,16 +197,4 @@ def deleted_notice(sender, instance, **kwargs):
 
 
 # ======================================================================================================================
-
-
-@receiver(post_save, sender=Post)
-def created_post(sender, instance, created, **kwargs):
-    if created:
-        try:
-            with transaction.atomic():
-                post_comment_count = PostCommentCount.objects.create(post=instance)
-                post_react_count = PostReactCount.objects.create(post=instance)
-        except Exception as e:
-            print(e)
-            pass
 

@@ -233,6 +233,48 @@ def get_is_followed(user, user_who_read):
 
     return Follow.objects.filter(user=user_who_read, follow=user).exists()
 
+def switch_profile_celeb_template_by_lang(lang):
+    return {
+        'ara': 'celebrity/profile/celeb_profile_ara.html',
+        'chi': 'celebrity/profile/celeb_profile_chi.html',
+        'eng': 'celebrity/profile/celeb_profile_eng.html',
+        'por': 'celebrity/profile/celeb_profile_por.html',
+        'spa': 'celebrity/profile/celeb_profile_spa.html',
+    }.get(lang, 'celebrity/profile/celeb_profile_eng.html')
+
+
+def get_serialized_notice(notice, user_who_read):
+
+    user = None
+    notice_kind = None
+    comment_text = None
+    if notice.kind == FOLLOW:
+        user = notice.noticefollow.follow.user
+        notice_kind = "follow"
+        # follow
+    elif notice.kind == POST_COMMENT:
+        user = notice.noticepostcomment.post_comment.user
+        notice_kind = "post_comment"
+        comment_text = notice.noticepostcomment.post_comment.text
+
+    elif notice.kind == POST_REACT:
+        user = notice.noticepostreact.post_react.user
+        notice_kind = "post_react"
+
+    serialized = {
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'full_name': user.userfullname.full_name,
+        'user_photo': user.userphoto.file_300_url(),
+        'related_follower_list': get_related_follower_list(user, user_who_read),
+        'is_followed': get_is_followed(user, user_who_read),
+        'notice_id': notice.uuid,
+        'notice_kind': notice.kind,
+        'created': notice.created,
+        'comment_text': comment_text
+
+    }
+    return serialized
 
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):
@@ -329,7 +371,7 @@ def get_user_token(account=None, password=None):
         try:
             # user = User.objects.get(**kwargs)
             if user.check_password(password):
-                return True, user.usertoken.token
+                return True, user
         except User.DoesNotExist:
             return False, AUTH_USER_NOT_EXIST
     else:
@@ -486,6 +528,6 @@ def user_create(full_name, email, password):
 
     # send_email(new_user_create, new_user_full_name, new_user_primary_email_create, user_primary_email_token)
 
-    return True, new_user_token
+    return True, new_user_create
 
 

@@ -92,6 +92,17 @@ class UserDelete(models.Model):
         return "UserDelete for %s" % self.user.userusername.username
 
 
+class UserFirebaseInstanceId(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    instance_id = models.CharField(max_length=255)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "UserDelete for %s" % self.user.userusername.username
+
+
 import uuid
 import os
 

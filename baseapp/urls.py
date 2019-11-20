@@ -60,6 +60,12 @@ urlpatterns = [
             name="search"),
     re_path(r'^rest/fcm_push/$', base_rest_views.fcm_push,
             name="fcm_push"),
+
+    re_path(r'^rest/get_notice/$', base_rest_views.get_notice,
+            name="get_notice"),
+
+    re_path(r'^rest/change_profile_photo/$', base_rest_views.change_profile_photo,
+            name="change_profile_photo"),
 ]
 
 
