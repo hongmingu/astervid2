@@ -276,6 +276,34 @@ def get_serialized_notice(notice, user_who_read):
     }
     return serialized
 
+
+def get_post_by_id(post_id):
+    try:
+        post = Post.objects.get(uuid=post_id)
+    except Post.DoesNotExist as e:
+        print(e)
+        return None
+    return post
+
+
+def get_serialized_comment(item, user_who_read):
+
+    user = item.user
+
+    serialized = {
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'full_name': user.userfullname.full_name,
+        'user_photo': user.userphoto.file_300_url(),
+        'related_follower_list': get_related_follower_list(user, user_who_read),
+        'is_followed': get_is_followed(user, user_who_read),
+        'comment_id': item.uuid,
+        'created': item.created,
+        'comment_text': item.text
+
+    }
+    return serialized
+
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):
 #     """

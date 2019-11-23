@@ -49,6 +49,32 @@ from .opts import *
 # 챗스톡, 페이지픽, 임플린, 챗카부 순으로 만들자.
 
 # ---------------------------------------------------------------------------------------------------------------------------
+@csrf_exempt
+def get_comment(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+    post_id = request.POST.get('post_id', None)
+
+    post = get_post_by_id(post_id)
+
+    step = 50
+
+    post_comments = PostComment.objects.filter(post).exclude().order_by('-created').distinct()[:step]
+
+    result = []
+
+    for item in post_comments:
+        result.append(get_serialized_comment(item))
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
 @csrf_exempt
 def change_profile_photo(request):

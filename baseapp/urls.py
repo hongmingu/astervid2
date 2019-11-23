@@ -66,6 +66,9 @@ urlpatterns = [
 
     re_path(r'^rest/change_profile_photo/$', base_rest_views.change_profile_photo,
             name="change_profile_photo"),
+
+    re_path(r'^rest/get_comment/$', base_rest_views.get_comment,
+            name="get_comment"),
 ]
 
 
