@@ -66,12 +66,12 @@ def get_comment(request):
 
     step = 50
 
-    post_comments = PostComment.objects.filter(post).exclude().order_by('-created').distinct()[:step]
+    post_comments = PostComment.objects.filter(post=post).exclude().order_by('-created').distinct()[:step]
 
     result = []
 
     for item in post_comments:
-        result.append(get_serialized_comment(item))
+        result.append(get_serialized_comment(item, user))
     print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
@@ -598,7 +598,7 @@ def add_comment(request):
 
         comment_create = PostComment.objects.create(user=user, post=post, text=comment_text)
 
-        result = {"opt": DEFAULT_PING, "con": get_serialized_comment(comment_create)}
+        result = {"opt": DEFAULT_PING, "con": get_serialized_comment(comment_create, user)}
 
         return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
