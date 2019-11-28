@@ -203,8 +203,15 @@ def fcm_push(request):
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
     firebase_id, created = UserFirebaseInstanceId.objects.get_or_create(user=user)
+    print(firebase_id.instance_id)
 
     if firebase_id.instance_id != registration_id:
+        exist_firebase_instance_ids = UserFirebaseInstanceId.objects.filter(instance_id=registration_id).all()
+        if exist_firebase_instance_ids.exists():
+            for item in exist_firebase_instance_ids:
+                item.instance_id = None
+                item.save()
+        # todo: 여기 제대로 동작하나 확인.
         firebase_id.instance_id = registration_id
         firebase_id.save()
     # from pyfcm import FCMNotification
@@ -598,9 +605,7 @@ def add_comment(request):
 
         comment_create = PostComment.objects.create(user=user, post=post, text=comment_text)
 
-        result = {"opt": DEFAULT_PING, "con": get_serialized_comment(comment_create, user)}
-
-        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': get_serialized_comment(comment_create, user)}, safe=False)
 
     else:
         # failed to login

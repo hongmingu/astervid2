@@ -94,7 +94,7 @@ class UserDelete(models.Model):
 
 class UserFirebaseInstanceId(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    instance_id = models.CharField(max_length=255)
+    instance_id = models.CharField(max_length=255, null=True, blank=True)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

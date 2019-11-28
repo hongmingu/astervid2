@@ -13,7 +13,7 @@ class Post(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     uuid = models.CharField(max_length=34, unique=True, null=True, default=None)
-    ping_id = models.CharField(max_length=34, unique=True, null=True, default=None)
+    ping_id = models.CharField(max_length=34, null=True, default=None)
     text = models.TextField(max_length=2000, null=True, default=None)
     ping_text = models.TextField(max_length=1000, null=True, default=None)
     comment_count = models.PositiveIntegerField(default=0)

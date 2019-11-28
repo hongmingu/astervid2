@@ -176,7 +176,8 @@ def created_notice(sender, instance, created, **kwargs):
                     "photo": photo
                 }
 
-                result = push_service.notify_single_device(registration_id=instance.user.userfirebaseinstanceid.instance_id, data_message=data_message)
+                if instance.user.userfirebaseinstanceid.instance_id is not None:
+                    result = push_service.notify_single_device(registration_id=instance.user.userfirebaseinstanceid.instance_id, data_message=data_message)
 
         except Exception as e:
             print(e)
