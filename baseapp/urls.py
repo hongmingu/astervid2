@@ -69,6 +69,9 @@ urlpatterns = [
 
     re_path(r'^rest/get_comment/$', base_rest_views.get_comment,
             name="get_comment"),
+
+    re_path(r'^rest/get_react/$', base_rest_views.get_react,
+            name="get_react"),
 ]
 
 

@@ -304,6 +304,21 @@ def get_serialized_comment(item, user_who_read):
     }
     return serialized
 
+
+def get_serialized_react(item, user_who_read):
+
+    user = item.user
+
+    serialized = {
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'full_name': user.userfullname.full_name,
+        'user_photo': user.userphoto.file_300_url(),
+        'related_follower_list': get_related_follower_list(user, user_who_read),
+        'is_followed': get_is_followed(user, user_who_read),
+        'created': item.created,
+    }
+    return serialized
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):
 #     """
