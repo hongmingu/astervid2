@@ -51,6 +51,36 @@ from .opts import *
 # ---------------------------------------------------------------------------------------------------------------------------
 
 @csrf_exempt
+def get_following(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+    user_id = request.POST.get('user_id', None)
+
+    user = get_user_by_id(user_id)
+
+    step = 50
+
+    post_reacts = User.objects.filter(username=user_id).exclude().order_by('-created').distinct()[:step]
+
+    # todo: galabill 에서 follwer 가져오는 코드.
+
+    result = []
+
+    for item in post_reacts:
+        result.append(get_serialized_user(item, user))
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+@csrf_exempt
 def get_react(request):
     if not request.method == "POST":
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
