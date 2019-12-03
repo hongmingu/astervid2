@@ -214,6 +214,7 @@ def get_serialized_user(user, user_who_read):
 
     if user is None or user_who_read is None:
         return None
+
     serialized = {
         'user_id': user.username,
         'username': user.userusername.username,
@@ -319,6 +320,16 @@ def get_serialized_react(item, user_who_read):
         'created': item.created,
     }
     return serialized
+
+
+def get_user_by_id(user_id):
+    try:
+        user = User.objects.get(username=user_id)
+    except User.DoesNotExist as e:
+        print(e)
+        return None
+    return user
+
 # HTTP_HEADER_ENCODING = 'iso-8859-1'
 # def get_authorization_header(request):
 #     """

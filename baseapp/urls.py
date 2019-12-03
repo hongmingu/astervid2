@@ -72,6 +72,11 @@ urlpatterns = [
 
     re_path(r'^rest/get_react/$', base_rest_views.get_react,
             name="get_react"),
+
+    re_path(r'^rest/get_following/$', base_rest_views.get_following,
+            name="get_following"),
+    re_path(r'^rest/get_follower/$', base_rest_views.get_follower,
+            name="get_follower"),
 ]
 
 

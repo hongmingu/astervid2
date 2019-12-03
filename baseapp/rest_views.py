@@ -49,7 +49,6 @@ from .opts import *
 # 챗스톡, 페이지픽, 임플린, 챗카부 순으로 만들자.
 
 # ---------------------------------------------------------------------------------------------------------------------------
-
 @csrf_exempt
 def get_following(request):
     if not request.method == "POST":
@@ -67,14 +66,40 @@ def get_following(request):
 
     step = 50
 
-    post_reacts = User.objects.filter(username=user_id).exclude().order_by('-created').distinct()[:step]
-
-    # todo: galabill 에서 follwer 가져오는 코드.
+    followings = Follow.objects.filter(user=user).order_by('-created').distinct()[:step]
 
     result = []
 
-    for item in post_reacts:
-        result.append(get_serialized_user(item, user))
+    for item in followings:
+        result.append(get_serialized_user(item.follow, user))
+    print(result)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
+
+
+@csrf_exempt
+def get_follower(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+    user_id = request.POST.get('user_id', None)
+
+    user = get_user_by_id(user_id)
+
+    step = 50
+
+    followers = Follow.objects.filter(follow=user).order_by('-created').distinct()[:step]
+
+    result = []
+
+    for item in followers:
+        result.append(get_serialized_user(item.user, user))
     print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
