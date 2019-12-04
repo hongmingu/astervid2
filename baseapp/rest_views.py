@@ -62,11 +62,11 @@ def get_following(request):
     end_id = request.POST.get('end_id', None)
     user_id = request.POST.get('user_id', None)
 
-    user = get_user_by_id(user_id)
+    get_user = get_user_by_id(user_id)
 
     step = 50
 
-    followings = Follow.objects.filter(user=user).order_by('-created').distinct()[:step]
+    followings = Follow.objects.filter(user=get_user).order_by('-created').distinct()[:step]
 
     result = []
 
@@ -90,11 +90,11 @@ def get_follower(request):
     end_id = request.POST.get('end_id', None)
     user_id = request.POST.get('user_id', None)
 
-    user = get_user_by_id(user_id)
+    get_user = get_user_by_id(user_id)
 
     step = 50
 
-    followers = Follow.objects.filter(follow=user).order_by('-created').distinct()[:step]
+    followers = Follow.objects.filter(follow=get_user).order_by('-created').distinct()[:step]
 
     result = []
 
