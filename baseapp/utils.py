@@ -12,7 +12,7 @@ from authapp.texts import *
 from baseapp.token import account_activation_token
 from .constants import *
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.authentication import BaseAuthentication
+from django.db.models import Q
 
 
 from authapp.models import *
@@ -210,7 +210,7 @@ def get_serialized_comment(comment):
     return serialized_post
 
 
-def get_serialized_user(user, user_who_read):
+def get_serialized_user_without_related(user, user_who_read):
 
     if user is None or user_who_read is None:
         return None
@@ -220,13 +220,36 @@ def get_serialized_user(user, user_who_read):
         'username': user.userusername.username,
         'full_name': user.userfullname.full_name,
         'user_photo': user.userphoto.file_300_url(),
+        'related': False,
+        'related_list': [],
+        'is_followed': get_is_followed(user, user_who_read)
+    }
+    return serialized
+
+
+def get_serialized_user_related(user, user_who_read):
+
+    if user is None or user_who_read is None:
+        return None
+
+    serialized = {
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'full_name': user.userfullname.full_name,
+        'user_photo': user.userphoto.file_300_url(),
+        'related': True,
         'related_follower_list': get_related_follower_list(user, user_who_read),
+        'related_following_list': get_related_follower_list(user, user_who_read),
         'is_followed': get_is_followed(user, user_who_read)
     }
     return serialized
 
 
 def get_related_follower_list(user, user_who_read):
+    return []
+
+
+def get_related_following_list(user, user_who_read):
     return []
 
 

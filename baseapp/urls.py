@@ -31,6 +31,10 @@ urlpatterns = [
     re_path(r'^group/(?P<uuid>([0-9a-f]{32}))/$', views.group_posts, name="group_posts"),
 
     # --------------------------------------------------------------------------------
+
+    re_path(r'^rest/test_post/$', base_rest_views.test_post,
+            name="test_post"),
+    # --------------------------------------------------------------------------------
     re_path(r'^rest/add_post/$', base_rest_views.add_post, name="add_post"),
 
     re_path(r'^rest/add_comment/$', base_rest_views.add_comment, name="add_comment"),
@@ -41,7 +45,8 @@ urlpatterns = [
     re_path(r'^rest/log_in/$', base_rest_views.log_in, name="log_in"),
 
     re_path(r'^rest/refresh_for_you_pings/$', base_rest_views.refresh_for_you_pings, name="refresh_for_you_pings"),
-    re_path(r'^rest/refresh_recommend_pings/$', base_rest_views.refresh_recommend_pings, name="refresh_recommend_pings"),
+    re_path(r'^rest/refresh_recommend_pings/$', base_rest_views.refresh_recommend_pings,
+            name="refresh_recommend_pings"),
     re_path(r'^rest/refresh_search_content_pings/$', base_rest_views.refresh_search_content_pings,
             name="refresh_search_content_pings"),
     re_path(r'^rest/refresh_ping_search_result/$', base_rest_views.refresh_ping_search_result,
@@ -78,7 +83,6 @@ urlpatterns = [
     re_path(r'^rest/get_follower/$', base_rest_views.get_follower,
             name="get_follower"),
 ]
-
 
 from django.conf import settings
 

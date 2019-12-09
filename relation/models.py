@@ -8,8 +8,8 @@ from object.models import *
 
 
 class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='is_following')
-    follow = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='is_followed')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='fuser')
+    follow = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='ffollow')
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

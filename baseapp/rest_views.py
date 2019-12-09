@@ -71,7 +71,7 @@ def get_following(request):
     result = []
 
     for item in followings:
-        result.append(get_serialized_user(item.follow, user))
+        result.append(get_serialized_user_without_related(item.follow, user))
     print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
@@ -99,7 +99,7 @@ def get_follower(request):
     result = []
 
     for item in followers:
-        result.append(get_serialized_user(item.user, user))
+        result.append(get_serialized_user_without_related(item.user, user))
     print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
@@ -347,7 +347,7 @@ def search(request):
     result = []
 
     for item in users:
-        result.append(get_serialized_user(item, user))
+        result.append(get_serialized_user_without_related(item, user))
 
     print(result)
 
@@ -753,6 +753,34 @@ def test_token(request):
         print("No")
     return JsonResponse({'resCode': 1})
 
+
+
+@csrf_exempt
+def test_post(request):
+    if request.method == 'POST':
+
+        master_username = "897096891123671504"
+        master_user = User.objects.get(username=master_username)
+
+        target_username = "897294952827569634"
+
+        target_user = User.objects.get(username=target_username)
+
+        a_usersb = User.objects.filter(ffollow__user=master_user).filter(ffollow__user=target_user).all()
+        # 마스터 유저가 팔로우 하는 사람 중 타겟 유저도 팔로우 하는 사람을 보여줌.
+
+        b_users = User.objects.filter(fuser__follow=target_user, ffollow__user=master_user).all()
+        # 마스터 유저가 팔로우 하는 사람 중 타겟 유저를 팔로우 하는 사람을 보여줌.
+
+        print(a_usersb)
+        print(b_users)
+        for item in a_usersb:
+            print("a_users: " + item.username)
+
+        for item_b in b_users:
+            print("b_users: " + item_b.username)
+
+        return JsonResponse({"test": "code"}, safe=False)
 
 @csrf_exempt
 def test_json(request):
