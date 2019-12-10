@@ -210,6 +210,31 @@ def get_serialized_comment(comment):
     return serialized_post
 
 
+def get_serialized_user(user, user_who_read, follow_update):
+
+    if user is None or user_who_read is None:
+        return None
+
+    if update:
+        related_follower_list = get_related_follower_list(user, user_who_read)
+        related_following_list = get_related_follower_list(user, user_who_read)
+    else:
+        related_follower_list = []
+        related_following_list = []
+
+    serialized = {
+        'user_id': user.username,
+        'username': user.userusername.username,
+        'full_name': user.userfullname.full_name,
+        'user_photo': user.userphoto.file_300_url(),
+        'follow_update': follow_update,
+        'related_follower_list': related_follower_list,
+        'related_following_list': related_following_list,
+        'is_followed': get_is_followed(user, user_who_read)
+    }
+    return serialized
+
+
 def get_serialized_user_without_related(user, user_who_read):
 
     if user is None or user_who_read is None:
@@ -221,7 +246,8 @@ def get_serialized_user_without_related(user, user_who_read):
         'full_name': user.userfullname.full_name,
         'user_photo': user.userphoto.file_300_url(),
         'related': False,
-        'related_list': [],
+        'related_follower_list': get_related_follower_list(user, user_who_read),
+        'related_following_list': get_related_follower_list(user, user_who_read),
         'is_followed': get_is_followed(user, user_who_read)
     }
     return serialized
@@ -256,6 +282,7 @@ def get_related_following_list(user, user_who_read):
 def get_is_followed(user, user_who_read):
 
     return Follow.objects.filter(user=user_who_read, follow=user).exists()
+
 
 def switch_profile_celeb_template_by_lang(lang):
     return {
