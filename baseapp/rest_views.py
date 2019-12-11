@@ -71,7 +71,7 @@ def get_following(request):
     result = []
 
     for item in followings:
-        result.append(get_serialized_user_without_related(item.follow, user))
+        result.append(get_serialized_user(item.follow, user, False))
     print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
@@ -99,7 +99,7 @@ def get_follower(request):
     result = []
 
     for item in followers:
-        result.append(get_serialized_user_without_related(item.user, user))
+        result.append(get_serialized_user(item.user, user, False))
     print(result)
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)

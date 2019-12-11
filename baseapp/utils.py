@@ -181,10 +181,7 @@ def get_serialized_post(post_id, user_who_read):
         'post_id': post.uuid,
         'post_text': post.text,
         'ping_id': post.ping_id,
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'user_photo': user.userphoto.file_300_url(),
-        'full_name': user.userfullname.full_name,
+        'user': get_serialized_user(user, user_who_read, False),
         'comment_display_user_list': get_comment_display_user_list(user_who_read),
         'comment_count': get_comment_count(post, user_who_read),
         'react_display_user_list': get_react_display_user_list(user_who_read),
@@ -215,7 +212,7 @@ def get_serialized_user(user, user_who_read, follow_update):
     if user is None or user_who_read is None:
         return None
 
-    if update:
+    if follow_update:
         related_follower_list = get_related_follower_list(user, user_who_read)
         related_following_list = get_related_follower_list(user, user_who_read)
     else:
@@ -235,47 +232,22 @@ def get_serialized_user(user, user_who_read, follow_update):
     return serialized
 
 
-def get_serialized_user_without_related(user, user_who_read):
-
-    if user is None or user_who_read is None:
-        return None
-
-    serialized = {
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'full_name': user.userfullname.full_name,
-        'user_photo': user.userphoto.file_300_url(),
-        'related': False,
-        'related_follower_list': get_related_follower_list(user, user_who_read),
-        'related_following_list': get_related_follower_list(user, user_who_read),
-        'is_followed': get_is_followed(user, user_who_read)
-    }
-    return serialized
-
-
-def get_serialized_user_related(user, user_who_read):
-
-    if user is None or user_who_read is None:
-        return None
-
-    serialized = {
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'full_name': user.userfullname.full_name,
-        'user_photo': user.userphoto.file_300_url(),
-        'related': True,
-        'related_follower_list': get_related_follower_list(user, user_who_read),
-        'related_following_list': get_related_follower_list(user, user_who_read),
-        'is_followed': get_is_followed(user, user_who_read)
-    }
-    return serialized
-
-
 def get_related_follower_list(user, user_who_read):
-    return []
+
+    users = User.objects.filter(fuser__follow=user, ffollow__user=user_who_read).all()
+    # 마스터 유저가 팔로우 하는 사람 중 타겟 유저를 팔로우 하는 사람을 보여줌.
+    # user_who_read = master user
+
+    result = []
+    for item in users:
+        result.append(get_serialized_user(item, user_who_read, False))
+    return result
 
 
 def get_related_following_list(user, user_who_read):
+    users = User.objects.filter(ffollow__user=user_who_read).filter(ffollow__user=user).all()
+    # 마스터 유저가 팔로우 하는 사람 중 타겟 유저도 팔로우 하는 사람을 보여줌.
+    # user_who_read = master user
     return []
 
 
@@ -313,10 +285,7 @@ def get_serialized_notice(notice, user_who_read):
         notice_kind = "post_react"
 
     serialized = {
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'full_name': user.userfullname.full_name,
-        'user_photo': user.userphoto.file_300_url(),
+        'user': get_serialized_user(user, user_who_read, False),
         'related_follower_list': get_related_follower_list(user, user_who_read),
         'is_followed': get_is_followed(user, user_who_read),
         'notice_id': notice.uuid,
@@ -342,10 +311,7 @@ def get_serialized_comment(item, user_who_read):
     user = item.user
 
     serialized = {
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'full_name': user.userfullname.full_name,
-        'user_photo': user.userphoto.file_300_url(),
+        'user': get_serialized_user(user, user_who_read, False),
         'related_follower_list': get_related_follower_list(user, user_who_read),
         'is_followed': get_is_followed(user, user_who_read),
         'comment_id': item.uuid,
@@ -361,10 +327,7 @@ def get_serialized_react(item, user_who_read):
     user = item.user
 
     serialized = {
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'full_name': user.userfullname.full_name,
-        'user_photo': user.userphoto.file_300_url(),
+        'user': get_serialized_user(user, user_who_read, False),
         'related_follower_list': get_related_follower_list(user, user_who_read),
         'is_followed': get_is_followed(user, user_who_read),
         'created': item.created,
