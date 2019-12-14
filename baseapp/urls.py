@@ -82,6 +82,14 @@ urlpatterns = [
             name="get_following"),
     re_path(r'^rest/get_follower/$', base_rest_views.get_follower,
             name="get_follower"),
+
+    re_path(r'^rest/profile_change/$', base_rest_views.profile_change,
+            name="profile_change"),
+    re_path(r'^rest/password_check/$', base_rest_views.password_check,
+            name="password_check"),
+
+    re_path(r'^rest/password_change/$', base_rest_views.password_change,
+            name="password_change"),
 ]
 
 from django.conf import settings
