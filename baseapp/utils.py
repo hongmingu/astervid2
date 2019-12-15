@@ -191,23 +191,10 @@ def get_serialized_post(post_id, user_who_read):
     }
     return serialized_post
 
-def get_serialized_comment(comment):
-    if comment is None:
-        return None
-    user = comment.user
-    serialized_post = {
-        'comment_id': comment.uuid,
-        'comment_text': comment.text,
-        'user_id': user.username,
-        'username': user.userusername.username,
-        'user_photo': user.userphoto.file_300_url(),
-        'full_name': user.userfullname.full_name,
-        'created': comment.created
-    }
-    return serialized_post
-
 
 def get_serialized_user(user, user_who_read, follow_update):
+
+    # todo: user와 user_who_read 가 같을 경우
 
     if user is None or user_who_read is None:
         return None

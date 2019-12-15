@@ -50,6 +50,102 @@ from .opts import *
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
+@csrf_exempt
+def password_set(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    current_password = request.POST.get('current_password', None)
+
+    new_password = request.POST.get('new_password', None)
+    new_password_confirm = request.POST.get('new_password_confirm', None)
+
+    success, user = get_user_token(user.userusername, current_password)
+
+    print(user)
+    if not success:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    # username 작성시에 password 랑 같지 않게 짜져야 할 것이다.
+
+    password_success, password_code = password_validate(new_password)
+    if not password_success or (new_password != new_password_confirm):
+        return JsonResponse({'rc': 1, 'content': {'code': password_code}}, safe=False)
+
+    try:
+        with transaction.atomic():
+            user.set_password(new_password)
+            user.save()
+    except Exception as e:
+        print(e)
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': INVALID_TOKEN}, safe=False)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': VALIDATE_OK}, safe=False)
+
+
+@csrf_exempt
+def profile_change(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    username = request.POST.get('username', None)
+    full_name = request.POST.get('full_name', None)
+    email = request.POST.get('email', None)
+
+    print(username)
+    print(full_name)
+    print(email)
+    # validating email and password
+    print(user.userusername.username)
+    print(user.userfullname.full_name)
+    print(user.userprimaryemail.email)
+    if UserPrimaryEmail.objects.filter(email=email).exclude(user=user).exists():
+        print("here")
+        return JsonResponse({'rc': 1, 'content': USER_EMAIL_EXIST_PROBLEM}, safe=False)
+
+    if UserUsername.objects.filter(username=username).exclude(user=user).exists():
+        print("here")
+        return JsonResponse({'rc': 1, 'content': USER_EMAIL_EXIST_PROBLEM}, safe=False)
+
+    username_success, username_code = user_username_validate(username)
+    if not username_success:
+        return JsonResponse({'rc': 1, 'content': username_code}, safe=False)
+
+    email_success, email_code = user_primary_email_validate(email)
+    if not email_success:
+        return JsonResponse({'rc': 1, 'content': email_code}, safe=False)
+
+    full_name_success, full_name_code = user_full_name_validate(full_name)
+    if not full_name_success:
+        return JsonResponse({'rc': 1, 'content': full_name_code}, safe=False)
+
+    try:
+        with transaction.atomic():
+            user_username = user.userusername
+            user_full_name = user.userfullname
+            user_primary_email = user.userprimaryemail
+            user_username.username = username
+            user_full_name.full_name = full_name
+            user_primary_email.email = email
+
+            user_username.save()
+            user_full_name.save()
+            user_primary_email.save()
+    except Exception as e:
+        print(e)
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': INVALID_TOKEN}, safe=False)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': VALIDATE_OK}, safe=False)
 
 @csrf_exempt
 def get_following(request):
@@ -574,14 +670,13 @@ def log_in(request):
     success, user = get_user_token(account, password)
 
     print(user)
-
-    content_result = {'token': user.usertoken.token,
-                      'profile_username': user.userusername.username,
-                      'profile_user_id': user.username,
-                      'profile_photo': user.userphoto.file_300_url(),
-                      'profile_full_name': user.userfullname.full_name,
-                      'profile_email': user.userprimaryemail.email}
     if success:
+        content_result = {'token': user.usertoken.token,
+                          'profile_username': user.userusername.username,
+                          'profile_user_id': user.username,
+                          'profile_photo': user.userphoto.file_300_url(),
+                          'profile_full_name': user.userfullname.full_name,
+                          'profile_email': user.userprimaryemail.email}
         return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': content_result}, safe=False)
     else:
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': False}}, safe=False)

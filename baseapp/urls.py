@@ -85,11 +85,14 @@ urlpatterns = [
 
     re_path(r'^rest/profile_change/$', base_rest_views.profile_change,
             name="profile_change"),
-    re_path(r'^rest/password_check/$', base_rest_views.password_check,
-            name="password_check"),
 
-    re_path(r'^rest/password_change/$', base_rest_views.password_change,
-            name="password_change"),
+    re_path(r'^rest/password_set/$', base_rest_views.password_set,
+            name="password_set"),
+    # re_path(r'^rest/password_check/$', base_rest_views.password_check,
+    #         name="password_check"),
+    #
+    # re_path(r'^rest/password_change/$', base_rest_views.password_change,
+    #         name="password_change"),
 ]
 
 from django.conf import settings
