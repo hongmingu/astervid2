@@ -432,6 +432,27 @@ def get_user_token(account=None, password=None):
         return False, AUTH_USER_NOT_EXIST
 
 
+def get_user_by_account(account):
+    user = None
+    if '@' in account:
+        try:
+            user_object = UserPrimaryEmail.objects.get(email=account)
+        except UserPrimaryEmail.DoesNotExist:
+            return None, AUTH_EMAIL_NOT_EXIST
+        user = user_object.user
+        # user = User.objects.get(email=username)
+        # kwargs = {'email': username}
+    else:
+        account = account.lower()
+        try:
+            user_object = UserUsername.objects.get(username=account)
+        except UserUsername.DoesNotExist:
+            return None, AUTH_USERNAME_NOT_EXIST
+        user = user_object.user
+        # kwargs = {'username': username}
+    if user is not None:
+        return user, VALIDATE_OK
+
 def token_authenticate(request):
 
     HTTP_HEADER_ENCODING = 'iso-8859-1'

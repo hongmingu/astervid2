@@ -36,7 +36,7 @@ EMAIL_CONFIRMATION_SUBJECT = 'Email confirmation to activate your account'
 # PASSWORD_EQUAL_USERNAME = 'password cannot be the same as username'
 # PASSWORD_BANNED = 'It\'s unavailable password'
 # PASSWORD_AUTH_FAILED = 'password auth has failed'
-# PASSWORD_RESET_SUBJECT = 'Password reset email'
+PASSWORD_RESET_SUBJECT = 'Password reset email'
 # PASSWORD_CHANGED = 'Password has been changed'
 #
 # CREATING_USER_EXTRA_ERROR = 'There is something wrong on creating user'
@@ -55,7 +55,7 @@ EMAIL_CONFIRMATION_SUBJECT = 'Email confirmation to activate your account'
 # LOGIN_EMAIL_NOT_EXIST = 'Email does not exist'
 # LOGIN_USERNAME_NOT_EXIST = 'Username does not exist'
 
-SITE_NAME = 'Galabill'
-SITE_DOMAIN = 'www.galabill.com'
+SITE_NAME = 'SallyPing'
+SITE_DOMAIN = 'www.sallyping.com'
 
 FCM_API_KEY = "AAAAtW7jvvs:APA91bHmJB1UsjuwRiggVmOMnyDPMOd-PJ0t-WxQ0jLV0eku9dLS2LPIvraOecrf-QmI0SR-crle-fYclihygLx7drwVpLkLo2QRFenbG1OIvHWYObPmi8b8FXvrIv9F-3UttK6qISYu"

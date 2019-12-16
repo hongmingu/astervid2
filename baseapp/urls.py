@@ -88,6 +88,9 @@ urlpatterns = [
 
     re_path(r'^rest/password_set/$', base_rest_views.password_set,
             name="password_set"),
+
+    re_path(r'^rest/forgot_password/$', base_rest_views.forgot_password,
+            name="forgot_password"),
     # re_path(r'^rest/password_check/$', base_rest_views.password_check,
     #         name="password_check"),
     #

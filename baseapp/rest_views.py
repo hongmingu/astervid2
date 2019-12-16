@@ -51,6 +51,71 @@ from .opts import *
 # ---------------------------------------------------------------------------------------------------------------------------
 
 @csrf_exempt
+def forgot_password(request):
+    import authapp
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    account = request.POST.get('account', None)
+
+    user, code = get_user_by_account(account)
+
+    if user is None:
+
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': code}, safe=False)
+
+    user_primary_email = user.userprimaryemail
+
+    checker_while_loop = 0
+    counter_if_loop = 0
+    uid = None
+    token = None
+
+    while checker_while_loop is 0:
+        if counter_if_loop <= 9:
+
+            try:
+                uid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+                token = account_activation_token.make_token(user)
+                UserPasswordResetToken.objects.create(
+                    user_primary_email=user_primary_email,
+                    uid=uid,
+                    token=token,
+                    email=user_primary_email.email,
+                )
+
+            except IntegrityError as e:
+                if 'UNIQUE constraint' in str(e.args):
+                    counter_if_loop = counter_if_loop + 1
+                else:
+                    return JsonResponse({'rc': FAILED_RESPONSE, 'content': INVALID_TOKEN}, safe=False)
+        checker_while_loop = 1
+
+    # Send Email
+    subject = '[' + authapp.texts.SITE_NAME + ']' + authapp.texts.PASSWORD_RESET_SUBJECT
+
+    message = render_to_string('authapp/_password_reset_email.html', {
+        'username': user.userusername.username,
+        'name': user.userfullname.full_name,
+        'email': user_primary_email.email,
+        'domain': authapp.texts.SITE_DOMAIN,
+        'site_name': authapp.texts.SITE_NAME,
+        'uid': uid,
+        'token': token,
+    })
+
+    email_list = [user_primary_email.email]
+    print(email_list)
+    #
+    # send_mail(
+    #     subject=subject, message=message, from_email=authapp.options.DEFAULT_FROM_EMAIL,
+    #     recipient_list=email_list
+    # )
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': asterisk_total(user_primary_email.email)}, safe=False)
+
+
+
+@csrf_exempt
 def password_set(request):
     if not request.method == "POST":
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
