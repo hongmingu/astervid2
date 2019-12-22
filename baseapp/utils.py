@@ -181,6 +181,7 @@ def get_serialized_post(post_id, user_who_read):
         'post_id': post.uuid,
         'post_text': post.text,
         'ping_id': post.ping_id,
+        'ping_text': post.ping_text,
         'user': get_serialized_user(user, user_who_read, False),
         'comment_display_user_list': get_comment_display_user_list(user_who_read),
         'comment_count': get_comment_count(post, user_who_read),

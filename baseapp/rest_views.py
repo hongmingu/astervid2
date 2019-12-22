@@ -621,7 +621,9 @@ def send_instant_ping(request):
 
     post_create = Post.objects.create(user=user, ping_id=ping_id)
 
-    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': post_create.ping_id}, safe=False)
+    result = []
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': {"opt": DEFAULT_PING, "con": get_serialized_post(post_create.uuid, user)}}, safe=False)
 
 
 @csrf_exempt
