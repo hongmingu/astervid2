@@ -510,7 +510,7 @@ def search(request):
     result = []
 
     for item in users:
-        result.append(get_serialized_user_without_related(item, user))
+        result.append(get_serialized_user(item, user, False))
 
     print(result)
 
