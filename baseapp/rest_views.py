@@ -51,6 +51,43 @@ from .opts import *
 # ---------------------------------------------------------------------------------------------------------------------------
 
 @csrf_exempt
+def user_fully_update(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+    user_id = request.POST.get('user_id', None)
+
+    get_user = get_user_by_id(user_id)
+
+    step = 50
+
+    followings = Follow.objects.filter(user=get_user).order_by('-created').distinct()[:step]
+
+    following_result = []
+
+    for item in followings:
+        following_result.append(get_serialized_user(item.follow, user, False))
+    print(following_result)
+
+    followers = Follow.objects.filter(follow=get_user).order_by('-created').distinct()[:step]
+
+    follower_result = []
+
+    for item in followers:
+        follower_result.append(get_serialized_user(item.user, user, False))
+
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE,
+                         'content_follower': follower_result,
+                         'content_following': following_result}, safe=False)
+
+@csrf_exempt
 def forgot_password(request):
     import authapp
     if not request.method == "POST":
