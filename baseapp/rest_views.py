@@ -85,7 +85,8 @@ def user_fully_update(request):
 
     return JsonResponse({'rc': SUCCEED_RESPONSE,
                          'content_follower': follower_result,
-                         'content_following': following_result}, safe=False)
+                         'content_following': following_result,
+                         'user': get_serialized_user(get_user, user, True)}, safe=False)
 
 @csrf_exempt
 def forgot_password(request):

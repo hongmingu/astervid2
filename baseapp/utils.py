@@ -162,7 +162,11 @@ def get_comment_count(post, user):
     return 6
 
 def get_is_reacted(post, user):
-    return False
+    if PostReact.objects.filter(user=user, post=post).exists():
+        result = False
+    else:
+        result = True
+    return result
 
 def get_comment_display_user_list(user):
     return []
