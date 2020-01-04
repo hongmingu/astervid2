@@ -263,18 +263,22 @@ def get_serialized_notice(notice, user_who_read):
     user = None
     notice_kind = None
     comment_text = None
+    post_id = None
     if notice.kind == FOLLOW:
         user = notice.noticefollow.follow.user
         notice_kind = "follow"
+        post_id = "none"
         # follow
     elif notice.kind == POST_COMMENT:
         user = notice.noticepostcomment.post_comment.user
         notice_kind = "post_comment"
         comment_text = notice.noticepostcomment.post_comment.text
+        post_id = notice.noticepostcomment.post_comment.post.uuid
 
     elif notice.kind == POST_REACT:
         user = notice.noticepostreact.post_react.user
         notice_kind = "post_react"
+        post_id = notice.noticepostreact.post_react.post.uuid
 
     serialized = {
         'user': get_serialized_user(user, user_who_read, False),
@@ -283,7 +287,8 @@ def get_serialized_notice(notice, user_who_read):
         'notice_id': notice.uuid,
         'notice_kind': notice.kind,
         'created': notice.created,
-        'comment_text': comment_text
+        'comment_text': comment_text,
+        'post_id': post_id
 
     }
     return serialized

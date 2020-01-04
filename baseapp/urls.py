@@ -64,7 +64,7 @@ urlpatterns = [
     re_path(r'^rest/follow_boolean/$', base_rest_views.follow_boolean, name="follow_boolean"),
 
     #todo: boolean with 팔로우, 리액트로 바꾸고, 컬이 실패하면 실패했습니다 다시 시도해주세요 버튼 만들고, 노티스에도 로딩창 넣는다.for
-    
+
     re_path(r'^rest/search/$', base_rest_views.search,
             name="search"),
     re_path(r'^rest/fcm_push/$', base_rest_views.fcm_push,

@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import random
 from PIL import Image
+from django.utils import dateparse
 from io import BytesIO
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
@@ -865,6 +866,92 @@ def react(request):
     else:
         # failed to login
         return JsonResponse({'rc': 0})
+
+
+@csrf_exempt
+def react_boolean(request):
+    if token_authenticate(request) is not None:
+
+        user = token_authenticate(request)
+
+        if user is None:
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+        post_id = request.POST.get('post_id', None)
+        boolean = request.POST.get('boolean', None)
+
+        try:
+            post = Post.objects.get(uuid=post_id)
+        except Post.DoesNotExist as e:
+            print(post_id)
+            print(e)
+            return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+        created = None
+
+        if boolean == "true":
+            created = True
+            try:
+                PostReact.objects.create(user=user, post=post)
+            except Exception as e:
+                print(e)
+        else:
+            created = False
+            try:
+                PostReact.objects.filter(user=user, post=post).delete()
+            except Exception as e:
+                print(e)
+
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': created}, safe=False)
+
+    else:
+        # failed to login
+        return JsonResponse({'rc': 0})
+
+
+
+@csrf_exempt
+def follow_boolean(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+    user = token_authenticate(request)
+
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    user_id = request.POST.get('user_id', None)
+
+    boolean = request.POST.get('boolean', None)
+    # import dateutil.parser
+    # date = dateutil.parser.parse(request.POST.get('created', None))
+
+
+    # print("parse date;" + dateparse.parse_date(str(request.POST.get('created', None))))
+
+    user_find = User.objects.get(username=user_id)
+    if user_find is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    if user == user_find:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    created = None
+    if boolean == "true":
+        created = True
+        try:
+            create_follow = Follow.objects.create(user=user, follow=user_find)
+        except Exception as e:
+            print(e)
+
+    else:
+        created = False
+        try:
+            Follow.objects.filter(user=user, follow=user_find).delete()
+        except Exception as e:
+            print(e)
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': created}, safe=False)
 
 
 @csrf_exempt
