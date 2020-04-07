@@ -44,6 +44,8 @@ from .constants import *
 from .utils import *
 from .pings import *
 from .opts import *
+from django.utils import timezone
+
 
 # Create your models here.
 # 좋아요 비공개 할 수 있게
@@ -83,11 +85,11 @@ def user_fully_update(request):
     for item in followers:
         follower_result.append(get_serialized_user(item.user, user, False))
 
-
     return JsonResponse({'rc': SUCCEED_RESPONSE,
                          'content_follower': follower_result,
                          'content_following': following_result,
                          'user': get_serialized_user(get_user, user, True)}, safe=False)
+
 
 @csrf_exempt
 def forgot_password(request):
@@ -100,7 +102,6 @@ def forgot_password(request):
     user, code = get_user_by_account(account)
 
     if user is None:
-
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': code}, safe=False)
 
     user_primary_email = user.userprimaryemail
@@ -151,7 +152,6 @@ def forgot_password(request):
     #     recipient_list=email_list
     # )
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': asterisk_total(user_primary_email.email)}, safe=False)
-
 
 
 @csrf_exempt
@@ -251,6 +251,7 @@ def profile_change(request):
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': VALIDATE_OK}, safe=False)
 
+
 @csrf_exempt
 def get_following(request):
     if not request.method == "POST":
@@ -322,18 +323,37 @@ def get_react(request):
 
     post = get_post_by_id(post_id)
 
-    step = 50
+    step = 5
+    print(str(end_id))
 
-    post_reacts = PostReact.objects.filter(post=post).exclude().order_by('-created').distinct()[:step]
+    if end_id is None:
+        objs = PostReact.objects.filter(Q(post=post)).exclude().order_by('-created').distinct().all()
+    else:
+        try:
+            user = User.objects.get(username=end_id)
+            obj = PostReact.objects.get(Q(post=post) & Q(user=user))
+        except Exception as e:
+            print(e)
+            return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+        objs = PostReact.objects.filter(
+            Q(post=post) &
+            Q(pk__lt=obj.pk)
+        ).exclude().order_by('-created').distinct()[:step]
 
     result = []
-
-    for item in post_reacts:
+    obj_index = 0
+    for item in objs:
+        obj_index += 1
+        # if obj_index is step-1:
+        #     break
         result.append(get_serialized_react(item, user))
-    print(result)
+    if objs.count() < step:
+        """
+        posts are loaded fully
+        """
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
-
 
 
 @csrf_exempt
@@ -351,21 +371,42 @@ def get_comment(request):
 
     post = get_post_by_id(post_id)
 
-    step = 50
+    step = 5
+    print(str(end_id))
 
-    post_comments = PostComment.objects.filter(post=post).exclude().order_by('-created').distinct()[:step]
+    if end_id is None:
+        objs = PostComment.objects.filter(Q(post=post)).exclude().order_by('-created').distinct().all()
+    else:
+        try:
+            obj = PostComment.objects.get(uuid=end_id)
+        except PostComment.DoesNotExist as e:
+            print(e)
+            return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+        objs = PostComment.objects.filter(
+            Q(post=post) &
+            Q(pk__lt=obj.pk)
+        ).exclude().order_by('-created').distinct()[:step]
 
     result = []
-
-    for item in post_comments:
+    obj_index = 0
+    for item in objs:
+        obj_index += 1
+        # if obj_index is step-1:
+        #     break
         result.append(get_serialized_comment(item, user))
-    print(result)
+
+    print(str(result))
+    if objs.count() < step:
+        """
+        posts are loaded fully
+        """
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
+
 @csrf_exempt
 def change_profile_photo(request):
-
     if not request.method == "POST":
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
 
@@ -417,7 +458,6 @@ def change_profile_photo(request):
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': user_photo.file_300_url()}, safe=False)
 
 
-
 @csrf_exempt
 def get_notice(request):
     if not request.method == "POST":
@@ -430,24 +470,53 @@ def get_notice(request):
 
     end_id = request.POST.get('end_id', None)
 
-    step = 50
+    step = 5
+    print(str(end_id))
 
-    notices = Notice.objects.filter().exclude().order_by('-created').distinct()[:step]
+    post_last = timezone.now()
+    post_before = timezone.now() - timezone.timedelta(minutes=30)
+
+    if end_id is None:
+        objs = Notice.objects.filter(
+            Q(checked=False)
+            | (Q(created__range=(post_before, post_last)) & (Q(checked=True)))
+        ).exclude().order_by(
+            '-created').distinct().all()
+    else:
+        try:
+            obj = Notice.objects.get(uuid=end_id)
+        except Notice.DoesNotExist as e:
+            print(e)
+            return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+        objs = Notice.objects.filter(
+            Q(pk__lt=obj.pk)
+        ).exclude().order_by('-created').distinct()[:step]
 
     result = []
 
-    for item in notices:
-        result.append(get_serialized_notice(item, user))
-    print(result)
+    obj_index = 0
+    for item in objs:
+        obj_index += 1
+        # if obj_index is step - 1:
+        #     break
+        result.append(get_serialized_notice(item, user, False, False))
+    # is empty
+    if objs.count() == 0:
+        result.append(get_serialized_notice(True, True, True, True))
 
+    if objs.count() < step:
+        """
+        posts are loaded fully
+        """
+
+    objs.update(checked=True)
+    print(str(result))
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
 
-
-
-
 @csrf_exempt
-def get_notice(request):
+def log_out(request):
     if not request.method == "POST":
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
 
@@ -456,22 +525,20 @@ def get_notice(request):
     if user is None:
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
-    end_id = request.POST.get('end_id', None)
+    registration_id = request.POST.get('fcm_token', None)
 
-    step = 50
+    if registration_id is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
-    notices = Notice.objects.filter().exclude().order_by('-created').distinct()[:step]
+    firebase_id, created = UserFirebaseInstanceId.objects.get_or_create(user=user)
+    print(firebase_id.instance_id)
+    exist_firebase_instance_ids = UserFirebaseInstanceId.objects.filter(instance_id=registration_id).all()
+    if exist_firebase_instance_ids.exists():
+        for item in exist_firebase_instance_ids:
+            item.instance_id = None
+            item.save()
 
-    result = []
-
-    for item in notices:
-        result.append(get_serialized_notice(item, user))
-    print(result)
-
-    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
-
-
-
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': created}, safe=False)
 
 
 @csrf_exempt
@@ -523,7 +590,6 @@ def fcm_push(request):
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': created}, safe=False)
 
 
-
 @csrf_exempt
 def search(request):
     if not request.method == "POST":
@@ -539,7 +605,7 @@ def search(request):
     search_word = request.POST.get('search_word', None)
 
     users = User.objects.filter(Q(userusername__username__icontains=search_word) |
-                                    Q(userfullname__full_name__icontains=search_word)).exclude(
+                                Q(userfullname__full_name__icontains=search_word)).exclude(
         Q(username=user.username)).order_by('-userusername__created').distinct()[:step]
 
     if users is None:
@@ -610,7 +676,6 @@ def get_user_profile(request):
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
 
-
 @csrf_exempt
 def get_follow_feed(request):
     if not request.method == "POST":
@@ -621,26 +686,200 @@ def get_follow_feed(request):
     if user is None:
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
-    step = 50
+    end_id = request.POST.get('end_id', None)
+    step = 10
+    print(str(end_id))
 
-    posts = Post.objects.filter().exclude().order_by('-created').distinct()[:step]
+    # todo: received feed 마지막에 넣을 리스트.
+    """
+                    if end_id == '':
+                    posts = Post.objects.filter(Q(user__ffollow__user=request.user)
+                                                | Q(grouppost__group__is_group_followed__user=request.user)
+                                                | Q(solopost__solo__is_solo_followed__user=request.user)
+                                                ).exclude(Q(user=request.user)).order_by('-created').distinct()[:step]
+                else:
+                    end_post = None
+                    try:
+                        end_post = Post.objects.get(uuid=end_id)
+                    except Exception as e:
+                        print(e)
+                        return JsonResponse({'res': 0})
+                    posts = Post.objects.filter((Q(user__ffollow__user=request.user)
+                                                | Q(grouppost__group__is_group_followed__user=request.user)
+                                                | Q(solopost__solo__is_solo_followed__user=request.user))
+                                                & Q(pk__lt=end_post.pk)).exclude(
+                        Q(user=request.user)).order_by('-created').distinct()[:step]
+    """
+    posts = None
+    post_last = timezone.now()
+    post_before = timezone.now() - timezone.timedelta(minutes=30)
+    if end_id is None:
+        pass
+    else:
+        pass
+    if end_id is None:
+        pass
+        posts = Post.objects.filter(
+            (Q(user__ffollow__user=user) | Q(user=user))
+            & Q(created__range=(post_before, post_last))
+        ).exclude().order_by('-created').distinct().all()
+    else:
+        try:
+            post = Post.objects.get(uuid=end_id)
+        except Post.DoesNotExist as e:
+            print(e)
+            return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+
+        posts = Post.objects.filter(
+            (Q(user__ffollow__user=user) | Q(user=user))
+            & Q(created__range=(post_before, post_last))
+            & Q(pk__lt=post.pk)
+        ).exclude().order_by('-created').distinct().all()
 
     result = []
-
     post_index = 0
     for item in posts:
         post_index += 1
-        if post_index % 10 == 0:
-            # 0, 10, 20, 30... 일 때
-            pass
-        result.append({"opt": DEFAULT_PING, "con": get_serialized_post(item.uuid, user)})
-    print(result)
+        # if post_index is step - 1:
+        #     break
+        result.append({"is_list": False, "con": get_serialized_post(item.uuid, user)})
+
+    if posts.count() == 0:
+        result.append({"is_list": True, "date": "empty", "con": []})
+
+    recent_last = timezone.now()
+    recent_before = timezone.now() - timezone.timedelta(hours=6)
+    # end_date = datetime.date(2005, 3, 31)
+    recent_logs = UserUniqueLog.objects.filter(
+        Q(updated__range=(recent_before, recent_last)) & Q(user__ffollow__user=user)).exclude(
+        Q(user=user)).order_by('-updated').distinct()[:step]
+
+    quarter_day_last = timezone.now() - timezone.timedelta(hours=6)
+    quarter_day_before = timezone.now() - timezone.timedelta(hours=24)
+    quarter_day_logs = UserUniqueLog.objects.filter(
+        Q(updated__range=(quarter_day_before, quarter_day_last)) & Q(user__ffollow__user=user)).exclude(
+        Q(user=user)).order_by(
+        '-updated').distinct()
+
+    day_logs = UserUniqueLog.objects.filter(Q(user__ffollow__user=user)).exclude(
+        Q(updated__range=(quarter_day_before, recent_last)) | Q(user=user)).order_by(
+        '-updated').distinct()
+
+    all_logs = UserUniqueLog.objects.filter().exclude(
+        Q(user__ffollow__user=user)
+        | Q(user=user)).order_by(
+        '-updated').distinct()
+
+    result.append({"is_list": True, "date": "RECENT", "con": get_user_list_from_log_list(recent_logs, user)})
+    result.append({"is_list": True, "date": "6h", "con": get_user_list_from_log_list(quarter_day_logs, user)})
+    result.append({"is_list": True, "date": "24h", "con": get_user_list_from_log_list(day_logs, user)})
+    result.append(
+        {"is_list": True, "date": "How about this user?", "con": get_user_list_from_log_list(all_logs, user)})
+
+    if posts.count() < step:
+        """
+        posts are loaded fully
+        """
+        # recent_last = timezone.now()
+        # recent_before = timezone.now() - timezone.timedelta(hours=6)
+        # # end_date = datetime.date(2005, 3, 31)
+        # recent_logs = UserUniqueLog.objects.filter(
+        #     Q(updated__range=(recent_before, recent_last)) & Q(user__ffollow__user=user)).exclude(
+        #     Q(user=user)).order_by('-updated').distinct()[:step]
+        #
+        # quarter_day_last = timezone.now() - timezone.timedelta(hours=6)
+        # quarter_day_before = timezone.now() - timezone.timedelta(hours=24)
+        # quarter_day_logs = UserUniqueLog.objects.filter(
+        #     Q(updated__range=(quarter_day_before, quarter_day_last)) & Q(user__ffollow__user=user)).exclude(
+        #     Q(user=user)).order_by(
+        #     '-updated').distinct()
+        #
+        # day_logs = UserUniqueLog.objects.filter(Q(user__ffollow__user=user)).exclude(
+        #     Q(updated__range=(quarter_day_before, recent_last)) | Q(user=user)).order_by(
+        #     '-updated').distinct()
+        #
+        # all_logs = UserUniqueLog.objects.filter().exclude(
+        #     Q(user__ffollow__user=user)
+        #     | Q(user=user)).order_by(
+        #     '-updated').distinct()
+        #
+        # result.append({"is_list": True, "date": "RECENT", "con": get_user_list_from_log_list(recent_logs, user)})
+        # result.append({"is_list": True, "date": "6h", "con": get_user_list_from_log_list(quarter_day_logs, user)})
+        # result.append({"is_list": True, "date": "24h", "con": get_user_list_from_log_list(day_logs, user)})
+        # result.append(
+        #     {"is_list": True, "date": "How about this user?", "con": get_user_list_from_log_list(all_logs, user)})
+
+        # 추천리스트 추가해주자. result.append({"is_list": True, "date": "24h", "con": get_user_list_from_log_list(day_logs, user)})
 
     return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
 
+@csrf_exempt
+def get_received_feed(request):
+    if not request.method == "POST":
+        return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
 
+    user = token_authenticate(request)
 
+    if user is None:
+        return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
+
+    end_id = request.POST.get('end_id', None)
+    step = 10
+    print(str(end_id))
+
+    posts = None
+    post_last = timezone.now()
+    post_before = timezone.now() - timezone.timedelta(minutes=30)
+    if end_id is None:
+        posts = Post.objects.filter(
+            Q(created__range=(post_before, post_last))
+        ).exclude(
+            Q(user__ffollow__user=user)
+            | Q(user=user)
+        ).order_by('-created').distinct()[:step]
+    else:
+        try:
+            post = Post.objects.get(uuid=end_id)
+        except Post.DoesNotExist as e:
+            print(e)
+            return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
+        posts = Post.objects.filter(
+            Q(created__range=(post_before, post_last))
+            & Q(pk__lt=post.pk)
+        ).exclude(
+            Q(user__ffollow__user=user)
+            | Q(user=user)
+        ).order_by('-created').distinct()[:step]
+
+    result = []
+    post_index = 0
+    for item in posts:
+        post_index += 1
+        # if post_index is step - 1:
+        #     break
+        result.append({"is_list": False, "con": get_serialized_post(item.uuid, user)})
+    if posts.count() == 0:
+        result.append({"is_list": True, "date": "empty", "con": []})
+
+    if posts.count() < step:
+        """
+        posts are loaded fully
+        """
+        result.append({"is_list": True, "date": "no more pings...", "con": []})
+
+    print(str(result))
+
+    recent_last = timezone.now()
+    day_before = timezone.now() - timezone.timedelta(hours=144)
+    random_day_log = UserUniqueLog.objects.filter(
+        Q(updated__range=(day_before, recent_last))).exclude(Q(user__ffollow__user=user) |
+                                                             Q(user=user)).order_by('?').distinct()[:step]
+
+    result.append(
+        {"is_list": True, "date": "other users?", "con": get_user_list_from_log_list(random_day_log, user)})
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
 
 @csrf_exempt
@@ -653,7 +892,6 @@ def send_instant_ping(request):
     if user is None:
         return JsonResponse({'rc': FAILED_RESPONSE, 'content': {'code': INVALID_TOKEN}}, safe=False)
 
-
     ping_id = request.POST.get('ping_id', None)
     if ping_id is None:
         return JsonResponse({'rc': 1, 'content': {'code': UNEXPECTED_METHOD}}, safe=False)
@@ -662,7 +900,12 @@ def send_instant_ping(request):
 
     result = []
 
-    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': {"opt": DEFAULT_PING, "con": get_serialized_post(post_create.uuid, user)}}, safe=False)
+    print(str(get_serialized_post(post_create.uuid, user)))
+
+    return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': {"opt": DEFAULT_PING,
+                                                             "is_list": False,
+                                                             "con": get_serialized_post(post_create.uuid, user)}},
+                        safe=False)
 
 
 @csrf_exempt
@@ -676,7 +919,7 @@ def refresh_ping_search_result(request):
     content_list = []
 
     from re import search
-    for item in PINGS:
+    for item in DEFAULT_PINGS:
         if search_word in item.ping_text:
             content_list.append(item.ping_id)
 
@@ -703,7 +946,6 @@ def refresh_search_content_pings(request):
         for opt_item in opts:
             for patch_item in opts_patch:
                 if patch_item["opt"] == opt_item:
-
                     sample_num = len(patch_item["pings"]) if len(patch_item["pings"]) < 10 else 10
                     # sample_num = 2
                     patch_list = random.sample(patch_item["pings"], sample_num)
@@ -727,7 +969,7 @@ def refresh_recommend_pings(request):
     if token_authenticate(request) is not None:
         user = token_authenticate(request)
 
-        pings = random.sample(PINGS, 5)
+        pings = random.sample(DEFAULT_PINGS, 5)
 
         ping_ids = []
         for item in pings:
@@ -748,14 +990,11 @@ def refresh_for_you_pings(request):
     if token_authenticate(request) is not None:
         user = token_authenticate(request)
 
-        pings = random.sample(PINGS, 5)
+        pings = random.sample(DEFAULT_PINGS, 5)
 
         ping_ids = []
         for item in pings:
             ping_ids.append(item.ping_id)
-
-
-
 
         return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': {'ping_ids': ping_ids}}, safe=False)
 
@@ -802,26 +1041,33 @@ def sign_up(request):
     # validating email and password
 
     if UserPrimaryEmail.objects.filter(email=email).exists():
-        return JsonResponse({'rc': 1, 'content': {'code': USER_EMAIL_EXIST_PROBLEM}}, safe=False)
+        print("user primary mail code")
+        return JsonResponse({'rc': FAIL, 'content': {'code': USER_EMAIL_EXIST_PROBLEM}}, safe=False)
 
     email_success, email_code = user_primary_email_validate(email)
     if not email_success:
-        return JsonResponse({'rc': 1, 'content': {'code': email_code}}, safe=False)
+        print("email code")
+        return JsonResponse({'rc': FAIL, 'content': {'code': email_code}}, safe=False)
 
     full_name_success, full_name_code = user_full_name_validate(full_name)
     if not full_name_success:
-        return JsonResponse({'rc': 1, 'content': {'code': full_name_code}}, safe=False)
+        print("full name success code")
+        return JsonResponse({'rc': FAIL, 'content': {'code': full_name_code}}, safe=False)
 
     # password 조건
     # username 작성시에 password 랑 같지 않게 짜져야 할 것이다.
     password_success, password_code = password_validate(password)
     if not password_success:
-        return JsonResponse({'rc': 1, 'content': {'code': password_code}}, safe=False)
+        print("password code")
+        return JsonResponse({'rc': FAIL, 'content': {'code': password_code}}, safe=False)
 
     # Then, go to is_valid below
     user_create_success, user = user_create(full_name, email, password)
     if not user_create_success:
-        return JsonResponse({'rc': 1, 'content': {'code': USER_CREATE_FAILED}}, safe=False)
+        print("user create code")
+        return JsonResponse({'rc': FAIL, 'content': {'code': USER_CREATE_FAILED}}, safe=False)
+
+    print("usertoken" + user.usertoken.token)
 
     content_result = {'token': user.usertoken.token,
                       'profile_username': user.userusername.username,
@@ -879,6 +1125,8 @@ def react_boolean(request):
 
         post_id = request.POST.get('post_id', None)
         boolean = request.POST.get('boolean', None)
+        print(boolean)
+        print(post_id)
 
         try:
             post = Post.objects.get(uuid=post_id)
@@ -909,7 +1157,6 @@ def react_boolean(request):
         return JsonResponse({'rc': 0})
 
 
-
 @csrf_exempt
 def follow_boolean(request):
     if not request.method == "POST":
@@ -925,7 +1172,6 @@ def follow_boolean(request):
     boolean = request.POST.get('boolean', None)
     # import dateutil.parser
     # date = dateutil.parser.parse(request.POST.get('created', None))
-
 
     # print("parse date;" + dateparse.parse_date(str(request.POST.get('created', None))))
 
@@ -977,9 +1223,12 @@ def add_comment(request):
         if comment_text is None or comment_text == "":
             comment_text = None
 
+        print(str(post_id) + "is post id")
+
         comment_create = PostComment.objects.create(user=user, post=post, text=comment_text)
 
-        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': get_serialized_comment(comment_create, user)}, safe=False)
+        return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': get_serialized_comment(comment_create, user)},
+                            safe=False)
 
     else:
         # failed to login
@@ -1001,14 +1250,17 @@ def add_post(request):
         post_text = request.POST.get('post_text', None)
         # print("ping_id: "+str(ping_id))
         # print("ping_text: "+str(ping_text))
-        print("post_text: "+str(post_text))
+        print("post_text: " + str(post_text))
 
-        post_text = post_text.strip()
-        if post_text is None or post_text == "":
+        if post_text is None:
             post_text = None
+        elif post_text is "":
+            post_text = None
+        else:
+            post_text = post_text.strip()
 
         post_create = Post.objects.create(user=user, ping_id=ping_id, text=post_text, ping_text=ping_text)
-        result = {"opt": DEFAULT_PING, "con": get_serialized_post(post_create.uuid, user)}
+        result = {"is_list": False, "con": get_serialized_post(post_create.uuid, user)}
 
         return JsonResponse({'rc': SUCCEED_RESPONSE, 'content': result}, safe=False)
 
@@ -1043,7 +1295,6 @@ def test_token(request):
     return JsonResponse({'resCode': 1})
 
 
-
 @csrf_exempt
 def test_post(request):
     if request.method == 'POST':
@@ -1070,6 +1321,7 @@ def test_post(request):
             print("b_users: " + item_b.username)
 
         return JsonResponse({"test": "code"}, safe=False)
+
 
 @csrf_exempt
 def test_json(request):

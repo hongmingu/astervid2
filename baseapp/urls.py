@@ -43,6 +43,7 @@ urlpatterns = [
 
     re_path(r'^rest/sign_up/$', base_rest_views.sign_up, name="sign_up"),
     re_path(r'^rest/log_in/$', base_rest_views.log_in, name="log_in"),
+    re_path(r'^rest/log_out/$', base_rest_views.log_out, name="log_out"),
 
     re_path(r'^rest/refresh_for_you_pings/$', base_rest_views.refresh_for_you_pings, name="refresh_for_you_pings"),
     re_path(r'^rest/refresh_recommend_pings/$', base_rest_views.refresh_recommend_pings,
@@ -57,7 +58,8 @@ urlpatterns = [
 
     re_path(r'^rest/get_follow_feed/$', base_rest_views.get_follow_feed,
             name="get_follow_feed"),
-
+    re_path(r'^rest/get_received_feed/$', base_rest_views.get_received_feed,
+            name="get_received_feed"),
     re_path(r'^rest/follow/$', base_rest_views.follow,
             name="follow"),
     re_path(r'^rest/react_boolean/$', base_rest_views.react_boolean, name="react_boolean"),
@@ -98,6 +100,7 @@ urlpatterns = [
 
     re_path(r'^rest/user_fully_update/$', base_rest_views.user_fully_update,
             name="user_fully_update"),
+
     # re_path(r'^rest/password_check/$', base_rest_views.password_check,
     #         name="password_check"),
     #

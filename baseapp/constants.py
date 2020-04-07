@@ -1,3 +1,6 @@
+SUCCESS = 1
+FAIL = 0
+
 UNEXPECTED_METHOD = 4004
 
 ERROR_UNIQUE_CONSTRAINT_USERNAME = 4010
@@ -68,5 +71,15 @@ TO_CLICK = 2
 FCM_OPT_NOTICE_REACT = "fcm_opt_notice_react"
 FCM_OPT_NOTICE_COMMENT = "fcm_opt_notice_comment"
 FCM_OPT_NOTICE_FOLLOW = "fcm_opt_notice_follow"
+FCM_OPT_POST = "fcm_opt_post"
 
+# log
+
+LOG_POST = "log_post"
+LOG_COMMENT = "log_post_comment"
+LOG_REACT = "log_react"
+LOG_FOLLOW = "log_follow"
+LOG_GET_INIT_FEED = "log_get_init_feed"
+LOG_GET_FOLLOWING_FEED = "log_get_following_feed"
+LOG_GET_RECEIVED_FEED = "log_get_received_feed"
 

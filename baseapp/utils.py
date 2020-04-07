@@ -156,16 +156,17 @@ def asterisk_total(x):
     return asterisk_part(a) + '@' + asterisk_part(b) + '.' + asterisk_part(c)
 
 def get_react_count(post, user):
-    return 6
+
+    return post.react_count
 
 def get_comment_count(post, user):
-    return 6
+    return post.comment_count
 
 def get_is_reacted(post, user):
     if PostReact.objects.filter(user=user, post=post).exists():
-        result = False
-    else:
         result = True
+    else:
+        result = False
     return result
 
 def get_comment_display_user_list(user):
@@ -258,7 +259,13 @@ def switch_profile_celeb_template_by_lang(lang):
     }.get(lang, 'celebrity/profile/celeb_profile_eng.html')
 
 
-def get_serialized_notice(notice, user_who_read):
+def get_serialized_notice(notice, user_who_read, is_end, is_empty):
+
+    if is_empty:
+        serialized = {
+            'is_empty': True
+        }
+        return serialized
 
     user = None
     notice_kind = None
@@ -288,8 +295,9 @@ def get_serialized_notice(notice, user_who_read):
         'notice_kind': notice.kind,
         'created': notice.created,
         'comment_text': comment_text,
-        'post_id': post_id
-
+        'post_id': post_id,
+        'is_end': is_end,
+        'is_empty': False
     }
     return serialized
 
@@ -463,6 +471,17 @@ def get_user_by_account(account):
     if user is not None:
         return user, VALIDATE_OK
 
+
+def get_user_list_from_log_list(log_list, user_who_read):
+    result = []
+    for log in log_list:
+        result.append(get_serialized_user(log.user, user_who_read, False))
+        print("log pk: " + str(log.pk))
+        print("log updated: " + str(log.updated))
+
+    return result
+
+
 def token_authenticate(request):
 
     HTTP_HEADER_ENCODING = 'iso-8859-1'
@@ -581,6 +600,7 @@ def user_create(full_name, email, password):
             new_user_token, created = UserToken.objects.get_or_create(
                 user=new_user_create
             )
+            print(new_user_token.token)
 
             new_following_count = FollowingCount.objects.create(user=new_user_create)
             new_follower_count = FollowerCount.objects.create(user=new_user_create)

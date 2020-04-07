@@ -16,7 +16,7 @@ KINDS_CHOICES = (
 
 '''
 @receiver(post_save, sender=PostReact)
-def created_post_like(sender, instance, created, **kwargs):
+def created_post_react(sender, instance, created, **kwargs):
     if created:
         if instance.user == instance.post.user:
             return

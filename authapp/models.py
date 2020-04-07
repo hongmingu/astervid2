@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 
+import uuid
+import os
+
+
 # Create your models here.
 
 
@@ -103,10 +107,6 @@ class UserFirebaseInstanceId(models.Model):
         return "UserDelete for %s" % self.user.userusername.username
 
 
-import uuid
-import os
-
-
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
     usernum =instance.user.username
@@ -184,6 +184,31 @@ class UserToken(models.Model):
 
     def __str__(self):
         return "token: %s, username: %s" % (self.token, self.user.userusername.username)
+
+
+class UserLog(models.Model):
+    """
+    Log of users
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.CharField(max_length=255)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "username: %s, content: %s, " % (self.user.userusername.username, self.content)
+
+
+class UserUniqueLog(models.Model):
+    """
+    Unique log of users
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "username: %s, content: %s, " % (self.user.userusername.username, self.updated)
 
 
 def test_get_file_path(instance, filename):

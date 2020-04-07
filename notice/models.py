@@ -67,7 +67,7 @@ class Notice(models.Model):
             return result
         elif self.kind == POST_REACT:
             try:
-                get_result = self.noticepostlike.post_like
+                get_result = self.noticepostreact.post_like
             except Exception as e:
                 print(e)
                 pass
